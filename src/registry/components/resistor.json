@@ -1,0 +1,42 @@
+{
+  "id": "resistor",
+  "name": "Resistor",
+  "category": "passive",
+  "description": "A passive two-terminal electrical component that implements electrical resistance",
+  "defaultWidth": 80,
+  "defaultHeight": 30,
+  "ports": [
+    {
+      "id": "left",
+      "x": 0,
+      "y": 15,
+      "type": "inout"
+    },
+    {
+      "id": "right",
+      "x": 80,
+      "y": 15,
+      "type": "inout"
+    }
+  ],
+  "properties": [
+    {
+      "key": "resistance",
+      "label": "Resistance",
+      "type": "number",
+      "unit": "Ω",
+      "default": 1000,
+      "min": 0
+    },
+    {
+      "key": "tolerance",
+      "label": "Tolerance",
+      "type": "number",
+      "unit": "%",
+      "default": 5,
+      "min": 0,
+      "max": 20
+    }
+  ],
+  "svgPath": "M10,15 h10 l5,-10 l10,20 l10,-20 l10,20 l10,-20 l5,10 h10"
+}

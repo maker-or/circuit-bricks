@@ -1,0 +1,45 @@
+# Development files
+src/
+test-app/
+tests/
+coverage/
+vitest.config.ts
+rolldown.config.ts
+tsconfig.json
+tsconfig.tsbuildinfo
+.github/
+
+# Documentation files that don't need to be in the package
+TECHNICAL-DESIGN.md
+COMPONENT-SCHEMAS.md
+IMPLEMENTATION-PLAN.md
+PHASE-4-REPORT.md
+ACTION-PLAN.md
+TESTING-CHECKLIST.md
+TESTING-SETUP.md
+PANZOOM-TESTING.md
+CONTRIBUTING.md
+*.md
+!README.md
+!LICENSE.md
+
+# Editor files
+.vscode/
+.idea/
+.DS_Store
+
+# Configuration files
+.prettierrc
+.eslintrc.js
+.eslintignore
+
+# Misc
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

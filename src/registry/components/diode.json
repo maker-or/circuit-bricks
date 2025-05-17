@@ -1,0 +1,41 @@
+{
+  "id": "diode",
+  "name": "Diode",
+  "category": "semiconductor",
+  "description": "A semiconductor device that allows current to flow in only one direction",
+  "defaultWidth": 60,
+  "defaultHeight": 30,
+  "ports": [
+    {
+      "id": "anode",
+      "x": 0,
+      "y": 15,
+      "type": "inout"
+    },
+    {
+      "id": "cathode",
+      "x": 60,
+      "y": 15,
+      "type": "inout"
+    }
+  ],
+  "properties": [
+    {
+      "key": "forwardVoltage",
+      "label": "Forward Voltage",
+      "type": "number",
+      "unit": "V",
+      "default": 0.7,
+      "min": 0
+    },
+    {
+      "key": "maxCurrent",
+      "label": "Max Current",
+      "type": "number",
+      "unit": "A",
+      "default": 1,
+      "min": 0
+    }
+  ],
+  "svgPath": "M10,15 h10 M20,5 l0,20 L40,15 L20,5 M40,5 v20 M40,15 h10"
+}

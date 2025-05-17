@@ -1,0 +1,41 @@
+{
+  "id": "battery",
+  "name": "Battery",
+  "category": "sources",
+  "description": "A source of electrical energy that can be used to power circuits",
+  "defaultWidth": 60,
+  "defaultHeight": 40,
+  "ports": [
+    {
+      "id": "positive",
+      "x": 60,
+      "y": 20,
+      "type": "output"
+    },
+    {
+      "id": "negative",
+      "x": 0,
+      "y": 20,
+      "type": "output"
+    }
+  ],
+  "properties": [
+    {
+      "key": "voltage",
+      "label": "Voltage",
+      "type": "number",
+      "unit": "V",
+      "default": 9,
+      "min": 0
+    },
+    {
+      "key": "internal_resistance",
+      "label": "Internal Resistance",
+      "type": "number",
+      "unit": "Ω",
+      "default": 0.1,
+      "min": 0
+    }
+  ],
+  "svgPath": "M10,20 h10 M20,5 v30 M30,10 v20 M40,5 v30 M40,20 h10"
+}

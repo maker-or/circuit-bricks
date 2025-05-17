@@ -1,0 +1,95 @@
+{
+  "id": "ic",
+  "name": "Integrated Circuit",
+  "category": "advanced",
+  "description": "A general-purpose integrated circuit with configurable pins",
+  "defaultWidth": 80,
+  "defaultHeight": 100,
+  "ports": [
+    {
+      "id": "vcc",
+      "x": 20,
+      "y": 0,
+      "type": "input",
+      "label": "VCC"
+    },
+    {
+      "id": "gnd",
+      "x": 60,
+      "y": 100,
+      "type": "input",
+      "label": "GND"
+    },
+    {
+      "id": "in1",
+      "x": 0,
+      "y": 20,
+      "type": "input",
+      "label": "IN1"
+    },
+    {
+      "id": "in2",
+      "x": 0,
+      "y": 40,
+      "type": "input",
+      "label": "IN2"
+    },
+    {
+      "id": "in3",
+      "x": 0,
+      "y": 60,
+      "type": "input",
+      "label": "IN3"
+    },
+    {
+      "id": "in4",
+      "x": 0,
+      "y": 80,
+      "type": "input",
+      "label": "IN4"
+    },
+    {
+      "id": "out1",
+      "x": 80,
+      "y": 20,
+      "type": "output",
+      "label": "OUT1"
+    },
+    {
+      "id": "out2",
+      "x": 80,
+      "y": 40,
+      "type": "output",
+      "label": "OUT2"
+    },
+    {
+      "id": "out3",
+      "x": 80,
+      "y": 60,
+      "type": "output",
+      "label": "OUT3"
+    },
+    {
+      "id": "out4",
+      "x": 80,
+      "y": 80,
+      "type": "output",
+      "label": "OUT4"
+    }
+  ],
+  "properties": [
+    {
+      "key": "name",
+      "label": "IC Name",
+      "type": "text",
+      "default": "IC1"
+    },
+    {
+      "key": "type",
+      "label": "IC Type",
+      "type": "text",
+      "default": "Custom IC"
+    }
+  ],
+  "svgPath": "<svg width='80' height='100'><rect x='10' y='10' width='60' height='80' fill='none' stroke='black' stroke-width='2'/><text x='40' y='50' text-anchor='middle' font-family='monospace' font-size='12'>IC</text><circle cx='20' cy='10' r='3' fill='none' stroke='black'/></svg>"
+}

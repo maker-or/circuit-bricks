@@ -1,0 +1,41 @@
+{
+  "id": "capacitor",
+  "name": "Capacitor",
+  "category": "passive",
+  "description": "A passive two-terminal electrical component that stores electrical energy in an electric field",
+  "defaultWidth": 60,
+  "defaultHeight": 40,
+  "ports": [
+    {
+      "id": "left",
+      "x": 0,
+      "y": 20,
+      "type": "inout"
+    },
+    {
+      "id": "right",
+      "x": 60,
+      "y": 20,
+      "type": "inout"
+    }
+  ],
+  "properties": [
+    {
+      "key": "capacitance",
+      "label": "Capacitance",
+      "type": "number",
+      "unit": "μF",
+      "default": 10,
+      "min": 0
+    },
+    {
+      "key": "voltageRating",
+      "label": "Voltage Rating",
+      "type": "number",
+      "unit": "V",
+      "default": 50,
+      "min": 0
+    }
+  ],
+  "svgPath": "M10,20 h15 M35,5 v30 M45,5 v30 M45,20 h15"
+}

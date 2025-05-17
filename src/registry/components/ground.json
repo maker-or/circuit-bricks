@@ -1,0 +1,18 @@
+{
+  "id": "ground",
+  "name": "Ground",
+  "category": "basic",
+  "description": "A reference point in an electrical circuit from which voltages are measured",
+  "defaultWidth": 30,
+  "defaultHeight": 30,
+  "ports": [
+    {
+      "id": "terminal",
+      "x": 15,
+      "y": 0,
+      "type": "inout"
+    }
+  ],
+  "properties": [],
+  "svgPath": "M15,0 v15 M5,15 h20 M8,20 h14 M11,25 h8"
+}

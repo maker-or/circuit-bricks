@@ -1,0 +1,38 @@
+{
+  "id": "transistor-npn",
+  "name": "NPN Transistor",
+  "category": "semiconductor",
+  "description": "An NPN bipolar junction transistor for amplification and switching",
+  "defaultWidth": 50,
+  "defaultHeight": 60,
+  "ports": [
+    {
+      "id": "collector",
+      "x": 25,
+      "y": 0,
+      "type": "inout"
+    },
+    {
+      "id": "base",
+      "x": 0,
+      "y": 30,
+      "type": "input"
+    },
+    {
+      "id": "emitter",
+      "x": 25,
+      "y": 60,
+      "type": "inout"
+    }
+  ],
+  "properties": [
+    {
+      "key": "gain",
+      "label": "Current Gain (β)",
+      "type": "number",
+      "default": 100,
+      "min": 1
+    }
+  ],
+  "svgPath": "M25,0 v15 M25,45 v15 M0,30 h15 M15,15 v30 M15,30 l20,-10 l0,20 Z"
+}

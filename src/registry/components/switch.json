@@ -1,0 +1,35 @@
+{
+  "id": "switch",
+  "name": "Switch",
+  "category": "basic",
+  "description": "A component that can be open or closed to control current flow",
+  "defaultWidth": 60,
+  "defaultHeight": 30,
+  "ports": [
+    {
+      "id": "left",
+      "x": 0,
+      "y": 15,
+      "type": "inout"
+    },
+    {
+      "id": "right",
+      "x": 60,
+      "y": 15,
+      "type": "inout"
+    }
+  ],
+  "properties": [
+    {
+      "key": "state",
+      "label": "State",
+      "type": "select",
+      "options": [
+        { "value": "open", "label": "Open" },
+        { "value": "closed", "label": "Closed" }
+      ],
+      "default": "open"
+    }
+  ],
+  "svgPath": "M10,15 h10 M20,15 l20,-10 M40,15 h10"
+}

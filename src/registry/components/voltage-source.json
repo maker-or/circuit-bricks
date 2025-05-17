@@ -1,0 +1,51 @@
+{
+  "id": "voltage-source",
+  "name": "Voltage Source",
+  "category": "sources",
+  "description": "An ideal voltage source with constant voltage",
+  "defaultWidth": 50,
+  "defaultHeight": 50,
+  "ports": [
+    {
+      "id": "positive",
+      "x": 25,
+      "y": 0,
+      "type": "output"
+    },
+    {
+      "id": "negative",
+      "x": 25,
+      "y": 50,
+      "type": "output"
+    }
+  ],
+  "properties": [
+    {
+      "key": "voltage",
+      "label": "Voltage",
+      "type": "number",
+      "unit": "V",
+      "default": 5,
+      "min": 0
+    },
+    {
+      "key": "frequency",
+      "label": "Frequency",
+      "type": "number",
+      "unit": "Hz",
+      "default": 0,
+      "min": 0
+    },
+    {
+      "key": "sourceType",
+      "label": "Source Type",
+      "type": "select",
+      "options": [
+        { "value": "dc", "label": "DC" },
+        { "value": "ac", "label": "AC" }
+      ],
+      "default": "dc"
+    }
+  ],
+  "svgPath": "M25,10 v10 M20,25 h10 M25,30 v10 M25,25 m-15,0 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0"
+}
