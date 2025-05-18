@@ -1,28 +1,75 @@
 # Circuit-Bricks Documentation
 
+> **⚠️ DEVELOPMENT STATUS WARNING:** Circuit-Bricks is currently in early development stage (Alpha) and NOT recommended for production use. APIs are subject to change, features may be incomplete, and stability issues could arise. Use at your own risk for experimental or learning purposes only.
+
 ## Overview
 
 Circuit-Bricks is a React + TypeScript library that provides a modular, Lego-style system for creating interactive SVG-based electrical circuit diagrams. The library is designed with an AI-first approach, making it easy for both humans and AI agents to create, modify, and understand circuit diagrams through a well-defined JSON schema.
 
 ## Table of Contents
 
-1. [Architecture](#architecture)
-2. [Core Components](#core-components)
-3. [Component Registry](#component-registry)
-4. [Hooks](#hooks)
-5. [UI Components](#ui-components)
-6. [Utilities](#utilities)
-7. [Usage Examples](#usage-examples)
+1. [Development Status](#development-status)
+2. [Architecture](#architecture)
+3. [Core Components](#core-components)
+4. [Component Registry](#component-registry)
+5. [Hooks](#hooks)
+6. [UI Components](#ui-components)
+7. [Utilities](#utilities)
+8. [Usage Examples](#usage-examples)
    - [Basic Circuit](#basic-circuit)
    - [Interactive Editor](#interactive-editor)
    - [Advanced Circuit Examples](#advanced-circuit-examples)
-8. [Component Schema Reference](#component-schema-reference)
-9. [API Reference](#api-reference)
-10. [Performance Optimization](#performance-optimization)
-11. [Recent Additions (Phase 3 & 4)](#recent-additions-phase-3--4)
-12. [Implementation Details](#implementation-details)
-13. [Best Practices](#best-practices)
-14. [Conclusion](#conclusion)
+9. [Component Schema Reference](#component-schema-reference)
+10. [API Reference](#api-reference)
+11. [Performance Optimization](#performance-optimization)
+12. [Recent Additions (Phase 3 & 4)](#recent-additions-phase-3--4)
+13. [Implementation Details](#implementation-details)
+14. [Best Practices](#best-practices)
+15. [Conclusion](#conclusion)
+
+## Development Status
+
+Circuit-Bricks is currently in **early development stage (Alpha)** and should not be used in production environments. Here's what you need to know:
+
+### Current Limitations
+
+- **API Stability**: The API is not stable and may change without prior notice
+- **Feature Completeness**: Some features are still in development or may be missing
+- **Testing**: While we have test coverage, real-world usage and edge cases may reveal issues
+- **Performance**: Performance optimizations are ongoing
+- **Browser Compatibility**: May not work correctly in all browsers or versions
+- **Documentation**: Some documentation may be incomplete or outdated
+
+### Recommended Usage
+
+- **Experimentation**: Suitable for experiments and proof-of-concepts
+- **Learning**: Good for learning about circuit diagram libraries and React/TypeScript integration
+- **Contributing**: Ideal for developers who want to contribute to the library's development
+- **Feedback**: We welcome feedback on issues, features, and improvements
+
+### Development Roadmap
+
+1. **Alpha Phase** (Current)
+   - Core functionality implementation
+   - Basic component library
+   - Testing infrastructure
+
+2. **Beta Phase** (Upcoming)
+   - API stabilization
+   - Complete documentation
+   - Performance optimizations
+   - Browser compatibility improvements
+
+3. **Release Candidate**
+   - Feature-complete with stabilized APIs
+   - Comprehensive testing
+   - Production readiness audit
+
+4. **General Availability**
+   - Production-ready with semantic versioning
+   - Long-term support
+
+We welcome contributions and feedback from early adopters, but please be aware of the current limitations before integrating Circuit-Bricks into any project requiring stability or production-level reliability.
 
 ## Architecture
 
@@ -905,6 +952,8 @@ For optimal wire rendering:
 Circuit-Bricks provides a comprehensive framework for creating interactive circuit diagrams in React applications. Its modular architecture, JSON-based schema system, and AI-friendly design make it suitable for a wide range of applications, from educational tools to professional circuit design software.
 
 By leveraging the power of SVG and React, Circuit-Bricks enables developers to create rich, interactive circuit experiences with minimal effort. The library is designed to be extensible, allowing for custom components, styling, and behaviors to meet specific application needs.
+
+**Important Reminder**: As stated at the beginning of this documentation, Circuit-Bricks is currently in early development stage (Alpha) and is not recommended for production use. We encourage you to experiment with the library, provide feedback, and contribute to its development, but please exercise caution when considering it for critical or production applications until a stable release is announced.
 
 ## Performance Optimization
 

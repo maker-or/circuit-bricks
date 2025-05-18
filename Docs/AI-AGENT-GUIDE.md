@@ -1,5 +1,7 @@
 # Circuit-Bricks: AI Agent Guide
 
+> **⚠️ DEVELOPMENT STATUS WARNING:** Circuit-Bricks is currently in early development stage (Alpha) and NOT recommended for production use. APIs are subject to change, features may be incomplete, and stability issues could arise. When providing solutions or recommendations using Circuit-Bricks, AI agents should inform users about this development status.
+
 This guide is designed specifically for AI agents working with Circuit-Bricks to programmatically generate, modify, and analyze electrical circuit diagrams.
 
 ## Core Data Structures

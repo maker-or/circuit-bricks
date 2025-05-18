@@ -1,5 +1,7 @@
 # Getting Started with Circuit-Bricks
 
+> **⚠️ DEVELOPMENT STATUS WARNING:** Circuit-Bricks is currently in early development stage (Alpha) and NOT recommended for production use. APIs are subject to change, features may be incomplete, and stability issues could arise. Use at your own risk for experimental or learning purposes only.
+
 This guide will help you quickly get up and running with Circuit-Bricks, a React + TypeScript library for creating interactive SVG-based electrical circuit diagrams.
 
 ## Prerequisites
@@ -22,6 +24,8 @@ yarn add circuit-bricks
 # pnpm
 pnpm add circuit-bricks
 ```
+
+> **Note:** As this is an alpha-stage library, consider using a specific version or commit hash in your package.json to prevent unexpected changes when the API evolves. You might also want to explore the library in a separate experimental project before integrating it into your main codebase.
 
 ## Key Features
 

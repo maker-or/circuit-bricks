@@ -93,12 +93,12 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       style={{
         display: 'flex',
         flexDirection: 'column',
-        background: '#f8f9fa',
+        background: '#2d3748',
         borderRadius: '12px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
         overflow: 'hidden',
         height: '100%',
-        border: '1px solid #eaeef2',
+        border: '1px solid #1a202c',
         ...style
       }}
     >
@@ -106,15 +106,15 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
         className="palette-header"
         style={{
           padding: '16px',
-          borderBottom: '1px solid #eaeef2',
-          background: 'white'
+          borderBottom: '1px solid #1a202c',
+          background: '#202938'
         }}
       >
         <h3 style={{ 
           margin: '0 0 12px 0', 
           fontSize: '18px', 
           fontWeight: 600,
-          color: '#2d3748'
+          color: '#e2e8f0'
         }}>
           Components
         </h3>
@@ -132,21 +132,22 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
               width: '100%',
               padding: '10px 12px 10px 36px',
               fontSize: '14px',
-              border: '1px solid #e2e8f0',
+              border: '1px solid #4a5568',
               borderRadius: '8px',
-              backgroundColor: '#f8f9fa',
+              backgroundColor: '#1a202c',
+              color: '#e2e8f0',
               transition: 'all 0.2s ease',
               outline: 'none',
               boxSizing: 'border-box',
-              boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.05)'
+              boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.2)'
             }}
             onFocus={(e) => {
-              e.target.style.borderColor = '#4299e1';
-              e.target.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 0 0 3px rgba(66, 153, 225, 0.15)';
+              e.target.style.borderColor = '#63b3ed';
+              e.target.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(66, 153, 225, 0.25)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = '#e2e8f0';
-              e.target.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.05)';
+              e.target.style.borderColor = '#4a5568';
+              e.target.style.boxShadow = 'inset 0 1px 2px rgba(0, 0, 0, 0.2)';
             }}
           />
           <svg 
@@ -210,7 +211,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             padding: '0 16px',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
-            background: 'white',
+            background: '#202938',
             position: 'relative',
             zIndex: 1
           }}
@@ -230,16 +231,16 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
                 fontSize: '14px',
                 fontWeight: 500,
                 border: 'none',
-                background: activeCategory === null ? '#ebf8ff' : 'transparent',
-                color: activeCategory === null ? '#3182ce' : '#4a5568',
+                background: activeCategory === null ? '#3182ce' : 'transparent',
+                color: activeCategory === null ? '#fff' : '#a0aec0',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.2s ease',
-                boxShadow: activeCategory === null ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
+                boxShadow: activeCategory === null ? '0 1px 3px rgba(0, 0, 0, 0.2)' : 'none'
               }}
               onMouseEnter={(e) => {
                 if (activeCategory !== null) {
-                  e.currentTarget.style.background = '#f7fafc';
+                  e.currentTarget.style.background = '#2d3748';
                 }
               }}
               onMouseLeave={(e) => {
@@ -261,16 +262,16 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
                   fontSize: '14px',
                   fontWeight: 500,
                   border: 'none',
-                  background: activeCategory === category ? '#ebf8ff' : 'transparent',
-                  color: activeCategory === category ? '#3182ce' : '#4a5568',
+                  background: activeCategory === category ? '#3182ce' : 'transparent',
+                  color: activeCategory === category ? '#fff' : '#a0aec0',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
                   transition: 'all 0.2s ease',
-                  boxShadow: activeCategory === category ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'
+                  boxShadow: activeCategory === category ? '0 1px 3px rgba(0, 0, 0, 0.2)' : 'none'
                 }}
                 onMouseEnter={(e) => {
                   if (activeCategory !== category) {
-                    e.currentTarget.style.background = '#f7fafc';
+                    e.currentTarget.style.background = '#2d3748';
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -293,7 +294,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             left: 0,
             width: '16px',
             height: '100%',
-            background: 'linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0))',
+            background: 'linear-gradient(to right, rgba(32, 41, 56, 0.9), rgba(32, 41, 56, 0))',
             zIndex: 2,
             pointerEvents: 'none'
           }}></div>
@@ -305,7 +306,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             right: 0,
             width: '16px',
             height: '100%',
-            background: 'linear-gradient(to left, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0))',
+            background: 'linear-gradient(to left, rgba(32, 41, 56, 0.9), rgba(32, 41, 56, 0))',
             zIndex: 2,
             pointerEvents: 'none'
           }}></div>
@@ -381,7 +382,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             left: 0,
             right: 0,
             height: '12px',
-            background: 'linear-gradient(to bottom, rgba(248, 249, 250, 0.9), rgba(248, 249, 250, 0))',
+            background: 'linear-gradient(to bottom, rgba(45, 55, 72, 0.9), rgba(45, 55, 72, 0))',
             zIndex: 2,
             pointerEvents: 'none'
           }}></div>
@@ -393,7 +394,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             left: 0,
             right: 0,
             height: '12px',
-            background: 'linear-gradient(to top, rgba(248, 249, 250, 0.9), rgba(248, 249, 250, 0))',
+            background: 'linear-gradient(to top, rgba(45, 55, 72, 0.9), rgba(45, 55, 72, 0))',
             zIndex: 2,
             pointerEvents: 'none'
           }}></div>
@@ -458,24 +459,24 @@ const ComponentListItem: React.FC<ComponentListItemProps> = ({
         alignItems: 'center',
         padding: '10px 12px',
         borderRadius: '8px',
-        background: 'white',
-        border: '1px solid #edf2f7',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+        background: '#1a202c',
+        border: '1px solid #2d3748',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
         cursor: 'pointer',
         transition: 'all 0.2s ease',
         gap: '12px'
       }}
       onMouseEnter={(e) => {
         const target = e.currentTarget;
-        target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.07)';
+        target.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.3)';
         target.style.transform = 'translateY(-1px)';
-        target.style.borderColor = '#e2e8f0';
+        target.style.borderColor = '#4a5568';
       }}
       onMouseLeave={(e) => {
         const target = e.currentTarget;
-        target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+        target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.2)';
         target.style.transform = 'translateY(0)';
-        target.style.borderColor = '#edf2f7';
+        target.style.borderColor = '#2d3748';
       }}
     >
       <div 
@@ -487,8 +488,8 @@ const ComponentListItem: React.FC<ComponentListItemProps> = ({
           width: '48px',
           height: '48px',
           borderRadius: '6px',
-          background: '#f7fafc',
-          color: '#4a5568',
+          background: '#2d3748',
+          color: '#a0aec0',
           flexShrink: 0
         }}
       >
@@ -520,11 +521,11 @@ const ComponentListItem: React.FC<ComponentListItemProps> = ({
           style={{
             fontWeight: 500,
             fontSize: '14px',
-            color: '#2d3748',
+            color: '#e2e8f0',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            opacity: 0.85
+            opacity: 0.9
           }}
         >
           {component.name}
@@ -533,7 +534,7 @@ const ComponentListItem: React.FC<ComponentListItemProps> = ({
           className="component-category"
           style={{
             fontSize: '12px',
-            color: '#718096',
+            color: '#a0aec0',
             marginTop: '2px',
             opacity: 0.7
           }}

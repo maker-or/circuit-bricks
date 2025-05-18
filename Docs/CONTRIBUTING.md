@@ -1,5 +1,7 @@
 # Contributing to Circuit-Bricks
 
+> **⚠️ DEVELOPMENT STATUS:** Circuit-Bricks is currently in alpha stage and not recommended for production use. Your contributions are especially valuable during this early development phase!
+
 Thank you for your interest in contributing to Circuit-Bricks! This document contains guidelines for contributing code, reporting issues, and requesting features.
 
 ## Code of Conduct

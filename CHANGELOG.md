@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+> **⚠️ DEVELOPMENT STATUS:** Circuit-Bricks is currently in alpha stage and not recommended for production use.
+
+## [0.1.1-alpha.1] - 2025-05-18
+
+### Added
+- Development status notices in documentation and README
+- Updated package version to reflect alpha status
+- UI improvements for PropertyPanel and ComponentPalette
+- Dark theme for better visual contrast
+
+### Changed
+- Position of infinite canvas preview (minimap) to bottom-left for better usability
+
 ## [0.1.0] - 2025-05-17
 
 ### Added

@@ -1,5 +1,7 @@
 # Circuit-Bricks
 
+> **⚠️ DEVELOPMENT STATUS:** This library is currently in early development stage and not recommended for production use. APIs may change, features might be incomplete, and there could be significant bugs. Use at your own risk.
+
 A React + TypeScript library for creating SVG-based electrical circuit diagrams with a Lego-style component system.
 
 ![Circuit-Bricks Banner](https://github.com/sphere-labs/circuit-bricks/raw/main/assets/banner.png)
@@ -28,6 +30,20 @@ yarn add circuit-bricks
 # pnpm
 pnpm add circuit-bricks
 ```
+
+## Development Status
+
+**Circuit-Bricks is currently in active development and should NOT be used in production environments.**
+
+- **Alpha Stage**: The API is subject to change without notice
+- **Limited Testing**: While we have tests, real-world usage is limited
+- **Incomplete Features**: Some advanced features may still be in development
+- **Possible Bugs**: You may encounter unexpected issues
+- **Performance Tuning**: Optimizations are still ongoing
+
+We welcome contributors and early adopters to help shape the future of the library, but please be aware of the current limitations before integrating it into critical projects.
+
+For the latest updates on stability and roadmap, please check our [GitHub repository](https://github.com/sphere-labs/circuit-bricks).
 
 ## Security
 

@@ -685,8 +685,8 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
         </text>
       )}
       
-      {/* Minimap for navigation in infinite canvas */}
-      <g transform={`translate(${typeof width === 'number' ? width - 120 : 'calc(100% - 120px)'}, ${typeof height === 'number' ? height - 120 : 'calc(100% - 120px)'})`}>
+      {/* Minimap for navigation in infinite canvas (bottom-left) */}
+      <g className="circuit-minimap" transform={`translate(10, ${typeof height === 'number' ? height - 120 : 'calc(100% - 120px)'})`}>
         <rect
           x="0"
           y="0"
