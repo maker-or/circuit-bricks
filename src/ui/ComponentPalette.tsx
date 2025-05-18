@@ -460,7 +460,7 @@ const ComponentListItem: React.FC<ComponentListItemProps> = ({
         padding: '10px 12px',
         borderRadius: '8px',
         background: '#1a202c',
-        border: '1px solid #2d3748',
+        border: '1px solidrgb(18, 22, 28)',
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
         cursor: 'pointer',
         transition: 'all 0.2s ease',

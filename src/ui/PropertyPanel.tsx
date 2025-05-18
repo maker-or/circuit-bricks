@@ -30,7 +30,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
         color: '#a0aec0',
         height: '100%',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-        border: '1px solid #2d3748',
+        border: '1px solidrgb(21, 25, 32)',
         textAlign: 'center'
       }}>
         <svg 
@@ -71,7 +71,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
         justifyContent: 'center',
         color: '#f56565',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-        border: '1px solid #2d3748',
+        border: '1px solidrgb(21, 26, 34)',
         textAlign: 'center'
       }}>
         <svg 
