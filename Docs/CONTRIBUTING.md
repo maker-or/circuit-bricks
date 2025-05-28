@@ -83,7 +83,8 @@ Understanding the project structure will help you contribute effectively:
 ```
 src/
 ├─ index.ts                 # Main exports
-├─ types.ts                 # Core type definitions
+├─ schemas/                 # ZOD schema definitions (single source of truth)
+│  └─ componentSchema.ts    # ZOD schemas and derived TypeScript types
 ├─ core/                    # Core rendering components
 │  ├─ BaseComponent.tsx     # Base SVG rendering
 │  ├─ Brick.tsx             # Schema to component mapper

@@ -38,10 +38,18 @@ The system architecture follows a layered approach:
 └───────────────────────────────────────────────────────┘
 ```
 
-### Type System (types.ts)
+### Type System (schemas/componentSchema.ts)
 
-The type system forms the foundation of the library, defining the core interfaces that describe circuit components and their relationships. Key types include:
+The type system forms the foundation of the library, using Zod schemas as the single source of truth for both runtime validation and TypeScript types. This approach provides:
 
+**Benefits:**
+- **Runtime Validation**: Ensures data integrity when loading component definitions from JSON
+- **Type Safety**: Automatically derived TypeScript types ensure compile-time safety
+- **Single Source of Truth**: No duplication between runtime schemas and TypeScript types
+- **Better Error Messages**: Zod provides detailed validation error messages
+- **Agent-First Design**: Supports LLM validation of generated components
+
+**Key Types:**
 - **`ComponentSchema`**: Defines the structure and behavior of a component type
 - **`ComponentInstance`**: Represents an instance of a component in a circuit
 - **`Wire`**: Represents a connection between two component ports
@@ -237,95 +245,24 @@ Design decisions:
 
 ### Port Position Calculation
 
-Port positions are critical for wire rendering and are calculated as follows:
-
-```javascript
-function getPortPosition(componentId, portId) {
-  // Find the port element in the DOM
-  const portElement = document.querySelector(
-    `[data-component-id="${componentId}"][data-port-id="${portId}"]`
-  );
-  
-  if (!portElement) return null;
-  
-  // Get the client bounding rect
-  const portRect = portElement.getBoundingClientRect();
-  
-  // Find the SVG root
-  let svgRoot = portElement;
-  while (svgRoot && !(svgRoot instanceof SVGSVGElement)) {
-    svgRoot = svgRoot.parentElement;
-  }
-  
-  if (!svgRoot) return null;
-  
-  // Get the SVG bounding rect
-  const svgRect = svgRoot.getBoundingClientRect();
-  
-  // Create an SVG point
-  const point = svgRoot.createSVGPoint();
-  point.x = portRect.x + portRect.width/2 - svgRect.x;
-  point.y = portRect.y + portRect.height/2 - svgRect.y;
-  
-  // Transform to SVG coordinates
-  const transformedPoint = point.matrixTransform(
-    svgRoot.getScreenCTM().inverse()
-  );
-  
-  return {
-    x: transformedPoint.x,
-    y: transformedPoint.y
-  };
-}
-```
-
-Key considerations:
-- DOM querying reliability
-- SVG coordinate transformation accuracy
-- Performance implications of frequent calls
-- Error handling for missing elements
+Port positions are calculated by:
+1. DOM querying using data attributes
+2. SVG coordinate transformation
+3. Error handling for missing elements
 
 ### Wire Path Generation
 
-Wire paths are generated based on port positions and orientation:
-
-```javascript
-function generatePath(from, to) {
-  // For horizontal wires
-  if (Math.abs(from.y - to.y) < 20) {
-    return `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
-  }
-  
-  // For vertical wires
-  const midX = (from.x + to.x) / 2;
-  return `M ${from.x} ${from.y} C ${midX} ${from.y}, ${midX} ${to.y}, ${to.x} ${to.y}`;
-}
-```
-
-Key considerations:
-- Path readability and simplicity
-- Natural look for different orientations
-- Support for different connection angles
+Wire paths use:
+- Straight lines for horizontal connections
+- Bezier curves for vertical connections
 - Minimal control points for performance
 
 ### Circuit Validation
 
-Circuit validation uses a multi-pass approach:
-
-1. **Connection Validation**: Checks if wire endpoints connect to valid components and ports
-2. **Float Detection**: Identifies inputs/outputs that should be connected but aren't
-3. **Short Circuit Detection**: Identifies multiple output ports connected together
-
-The short circuit detection uses a graph-based approach:
-1. Build a connection graph where nodes are ports and edges are wires
-2. Perform connected component analysis using BFS
-3. Check each connected component for multiple output ports
-
-Key considerations:
-- Comprehensive validation criteria
-- Performance with large circuits
-- Helpful error messages
-- Graph algorithm efficiency
+Multi-pass validation approach:
+1. **Connection Validation**: Valid components and ports
+2. **Float Detection**: Unconnected inputs/outputs
+3. **Short Circuit Detection**: Graph-based analysis for multiple outputs
 
 ## Implementation Challenges
 

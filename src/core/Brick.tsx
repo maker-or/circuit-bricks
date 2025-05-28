@@ -1,11 +1,11 @@
 /**
  * Brick Component
- * 
+ *
  * A wrapper around BaseComponent that handles schema lookup and error states.
  */
 
 import React from 'react';
-import { ComponentInstance } from '../types';
+import { ComponentInstance } from '../schemas/componentSchema';
 import { getComponentSchema } from '../registry';
 import BaseComponent from './BaseComponent';
 
@@ -25,32 +25,32 @@ const Brick: React.FC<BrickProps> = ({
   selected = false
 }) => {
   const schema = getComponentSchema(component.type);
-  
+
   // Handle missing schema with a placeholder component
   if (!schema) {
     console.warn(`No schema found for component type: ${component.type}`);
     return (
-      <g 
+      <g
         transform={`translate(${component.position.x}, ${component.position.y})`}
         onClick={onClick}
         onMouseDown={onMouseDown}
         data-component-id={component.id}
         data-component-type="unknown"
       >
-        <rect 
-          width={100} 
-          height={50} 
-          fill="red" 
-          stroke="black" 
+        <rect
+          width={100}
+          height={50}
+          fill="red"
+          stroke="white"
           strokeWidth={1.5}
           strokeDasharray="5,5"
           vectorEffect="non-scaling-stroke"
         />
-        <text 
-          x={50} 
-          y={25} 
-          textAnchor="middle" 
-          dominantBaseline="middle" 
+        <text
+          x={50}
+          y={25}
+          textAnchor="middle"
+          dominantBaseline="middle"
           fill="white"
           fontFamily="sans-serif"
           fontSize="12px"
@@ -60,10 +60,10 @@ const Brick: React.FC<BrickProps> = ({
       </g>
     );
   }
-  
+
   // Render the component with its schema
   return (
-    <BaseComponent 
+    <BaseComponent
       schema={schema}
       component={component}
       onClick={onClick}

@@ -113,7 +113,8 @@ describe('UI Components', () => {
       // Validate button should show the number of issues
       const validateButton = getByTitle('Validate circuit');
       expect(validateButton.textContent).toContain('(3)');
-      expect(validateButton.style.color).toBe('red');
+      // Check for the actual computed RGB color value (equivalent to #feb2b2)
+      expect(validateButton.style.color).toBe('rgb(254, 178, 178)');
     });
   });
   
@@ -165,9 +166,8 @@ describe('UI Components', () => {
         />
       );
       
-      // Check if property editors are rendered
-      // This is a simplistic test; in reality we'd check for specific property editors
-      const propertyEditors = container.querySelectorAll('.property-panel input, .property-panel select');
+      // Check if property editors are rendered using the correct CSS classes
+      const propertyEditors = container.querySelectorAll('.cb-property-panel input, .cb-property-panel select');
       expect(propertyEditors.length).toBeGreaterThan(0);
     });
     

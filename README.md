@@ -1,22 +1,26 @@
 # Circuit-Bricks
 
-> **⚠️ DEVELOPMENT STATUS:** This library is currently in early development stage and not recommended for production use. APIs may change, features might be incomplete, and there could be significant bugs. Use at your own risk.
-
 A React + TypeScript library for creating SVG-based electrical circuit diagrams with a Lego-style component system.
 
-![Circuit-Bricks Banner](https://github.com/sphere-labs/circuit-bricks/raw/main/assets/banner.png)
+> **⚠️ DEVELOPMENT STATUS:** This library is currently in early development stage and not recommended for production use. APIs may change, features might be incomplete, and there could be significant bugs. Use at your own risk.
+
+
+
+
 
 ## Features
 
 - **Modular Component System**: Each electrical element is a self-contained SVG "brick"
 - **Infinite Canvas**: Free-flowing design with pan and zoom capabilities for circuits of any size
 - **Pure Rendering Core**: Focuses on rendering with optional editing UI components
-- **AI-First Design**: Deterministic JSON schema makes it easy for AI agents to generate circuits
+- **AI-First Design**: Comprehensive LLM integration API for component discovery and circuit generation
 - **TypeScript Support**: Fully typed API for better developer experience
 - **SVG-Based Rendering**: Vector graphics for crisp rendering at any scale
 - **Component Registry**: Extensible system for creating custom circuit elements
 - **Customizable UI Components**: Optional UI elements for circuit editing
+- **Headless UI Components**: Unstyled components for complete styling flexibility
 - **Dual Package Format**: Supports both ESM and CommonJS
+- **Runtime Validation**: ZOD schema validation for component schemas and circuit states
 
 ## Installation
 
@@ -52,6 +56,7 @@ Circuit-Bricks is designed with security in mind:
 - No external dependencies in the production build
 - Regular security audits on all dependencies
 - Complete type safety with TypeScript
+- Runtime validation with ZOD schemas
 - Content Security Policy (CSP) compatible - no inline scripts or styles
 - All SVG content is properly sanitized
 
@@ -126,8 +131,8 @@ const SimpleCircuitExample = () => {
 
   return (
     <div style={{ width: '100%', height: '500px' }}>
-      <CircuitCanvas 
-        components={components} 
+      <CircuitCanvas
+        components={components}
         wires={wires}
         onComponentClick={(id) => setSelectedComponent(id)}
         showGrid={true}
@@ -184,7 +189,7 @@ interface ComponentSchema {
 You can create and register your own components:
 
 ```tsx
-import { registerComponent } from 'circuit-bricks';
+import { registerComponent, validateComponentSchema } from 'circuit-bricks';
 
 const customComponent = {
   id: 'custom-op-amp',
@@ -201,15 +206,23 @@ const customComponent = {
     { id: 'gnd', x: 30, y: 60, type: 'input' }
   ],
   properties: [
-    { 
-      key: 'gain', 
-      label: 'Gain', 
-      type: 'number', 
-      default: 100000 
+    {
+      key: 'gain',
+      label: 'Gain',
+      type: 'number',
+      default: 100000
     }
   ],
   svgPath: 'M10,25 h80' // SVG path data
 });
+
+// Validate the component schema before registering
+const validationResult = validateComponentSchema(customComponent);
+if (validationResult.success) {
+  registerComponent(customComponent);
+} else {
+  console.error('Invalid component schema:', validationResult.error);
+}
 ```
 
 ## Main Components
@@ -232,18 +245,48 @@ The main container component that renders a circuit:
 />
 ```
 
+### Headless UI Components
+
+Circuit-Bricks provides headless (unstyled) versions of all UI components, allowing you to fully customize the appearance using your preferred styling method:
+
+```tsx
+import {
+  HeadlessPropertyPanel,
+  HeadlessComponentPalette,
+  HeadlessCircuitToolbar
+} from 'circuit-bricks';
+
+// Use with custom styling
+<HeadlessPropertyPanel
+  component={selectedComponent}
+  onPropertyChange={handlePropertyChange}
+  className="custom-panel"
+  classNames={{
+    header: "custom-header",
+    title: "custom-title"
+  }}
+  style={{ backgroundColor: '#ffffff' }}
+  styles={{
+    header: { padding: '16px' },
+    title: { fontSize: '18px' }
+  }}
+/>
+```
+
+Headless components provide all the functionality without any styling, giving you complete control over the appearance while maintaining accessibility and behavior. See the [Headless Components](./Docs/HEADLESS-COMPONENTS.md) documentation for more details.
+
 ### Hooks and State Management
 
 Circuit-Bricks provides a powerful hook for managing circuit state:
 
 ```tsx
-const { 
+const {
   // Circuit state
   components,           // Map of component instances
   wires,                // Map of wire connections
   selectedComponent,    // Selected component ID
   selectedWire,         // Selected wire ID
-  
+
   // Actions
   addComponent,         // Add a new component
   updateComponent,      // Update an existing component
@@ -254,7 +297,13 @@ const {
   setSelectedComponent, // Select a component
   setSelectedWire,      // Select a wire
   clearSelection,       // Clear all selections
-  validateCircuit       // Validate circuit and return issues
+  validateCircuit,      // Validate circuit and return issues
+
+  // Validation utilities
+  validateComponentSchema, // Validate component schema with ZOD
+  validateComponentInstance, // Validate component instance with ZOD
+  validateWire,          // Validate wire with ZOD
+  validateCircuitState   // Validate circuit state with ZOD
 } = useCircuit();
 ```
 
@@ -342,7 +391,7 @@ const CircuitEditor = () => {
           hasSelection={!!(selectedComponent || selectedWire)}
         />
       </div>
-      
+
       <div style={{ display: 'flex', flex: 1 }}>
         <div style={{ width: '200px', borderRight: '1px solid #ccc', overflow: 'auto' }}>
           <ComponentPalette
@@ -355,7 +404,7 @@ const CircuitEditor = () => {
             }}
           />
         </div>
-        
+
         <div style={{ flex: 1, position: 'relative' }}>
           <CircuitCanvas
             components={components}
@@ -374,7 +423,7 @@ const CircuitEditor = () => {
             }}
           />
         </div>
-        
+
         <div style={{ width: '250px', borderLeft: '1px solid #ccc', padding: '10px' }}>
           {selectedComponent && (
             <PropertyPanel
@@ -386,7 +435,7 @@ const CircuitEditor = () => {
               }}
             />
           )}
-          
+
           {!selectedComponent && !selectedWire && (
             <div className="empty-panel">
               <p>Select a component or wire to view properties</p>
@@ -461,20 +510,72 @@ const App = () => (
 
 Each example is fully interactive and can be used as a starting point for your own circuits. You can also find these examples in the CodeSandbox demos.
 
+## LLM Integration API
+
+Circuit-Bricks provides a comprehensive API specifically designed for Large Language Models (LLMs) to discover components and generate circuits programmatically.
+
+### Quick Start for LLMs
+
+```typescript
+import { LLM } from 'circuit-bricks';
+
+// Discover available components
+const components = LLM.listAvailableComponents();
+console.log(`Found ${components.length} components`);
+
+// Search for specific components
+const resistors = LLM.searchComponents('resistor');
+
+// Get detailed component information
+const ledDetails = LLM.getComponentDetails('led');
+console.log('LED ports:', ledDetails?.ports);
+
+// Generate a circuit from description
+const circuit = LLM.generateCircuitTemplate('LED circuit with current limiting resistor');
+
+// Validate the circuit
+const validation = LLM.validateCircuitDesign(circuit);
+if (validation.isValid) {
+  console.log('Circuit is valid!');
+} else {
+  console.log('Issues:', validation.errors);
+}
+
+// Get human-readable descriptions
+const description = LLM.describeCircuit(circuit);
+console.log(description.summary);
+```
+
+### Key LLM Functions
+
+**Component Discovery:**
+- `listAvailableComponents()` - Get all available components
+- `searchComponents(query)` - Search components by name/description
+- `getComponentDetails(id)` - Get detailed component information
+
+**Validation:**
+- `validateCircuitDesign(circuit)` - Validate circuits with clear error messages
+- `validateComponentInstance(component)` - Validate individual components
+
+For comprehensive LLM integration documentation, see the [AI Agent Guide](./Docs/AI-AGENT-GUIDE.md).
+
 ## Documentation
 
 For comprehensive documentation, please check these files:
 
 - [Technical Design](./TECHNICAL-DESIGN.md): Architecture and implementation details
 - [Component Schemas](./COMPONENT-SCHEMAS.md): Component schema reference and examples
+- [ZOD Schemas](./ZOD-SCHEMAS.md): ZOD schema validation reference and examples
 - [Documentation](./DOCUMENTATION.md): Complete API reference and usage guide
+- [Headless Components](./Docs/HEADLESS-COMPONENTS.md): Guide to using unstyled components
 
 ## Project Structure
 
 ```
 src/
 ├─ index.ts                 # Main exports
-├─ types.ts                 # Core type definitions
+├─ schemas/                 # ZOD schema definitions (single source of truth)
+│  └─ componentSchema.ts    # ZOD schemas and derived TypeScript types
 ├─ core/                    # Core rendering components
 │  ├─ BaseComponent.tsx     # Base SVG rendering
 │  ├─ Brick.tsx             # Schema to component mapper
@@ -492,19 +593,25 @@ src/
 ├─ ui/                      # Optional UI components
 │  ├─ PropertyPanel.tsx     # Component property editor
 │  ├─ ComponentPalette.tsx  # Component selection palette
-│  └─ CircuitToolbar.tsx    # Actions toolbar
+│  ├─ CircuitToolbar.tsx    # Actions toolbar
+│  └─ headless/             # Headless (unstyled) components
+│     ├─ HeadlessPropertyPanel.tsx
+│     ├─ HeadlessComponentPalette.tsx
+│     └─ HeadlessCircuitToolbar.tsx
 └─ utils/                   # Utility functions
    ├─ getPortPosition.ts    # DOM position helpers
-   └─ circuitValidation.ts  # Circuit validation utilities
+   ├─ circuitValidation.ts  # Circuit validation utilities
+   └─ zodValidation.ts      # ZOD schema validation utilities
 ```
 
 ## Roadmap
 
 - [x] Core circuit rendering components
 - [x] Component palette and property editor UI
-- [x] Wire drawing and connection management  
+- [x] Wire drawing and connection management
 - [x] Circuit validation and error checking
 - [x] Example circuits and documentation
+- [x] ZOD schema validation for components and circuits
 - [ ] Circuit simulation capabilities
 - [ ] Export/import functionality (JSON, SVG)
 - [ ] Additional component libraries (digital logic, microcontrollers)
@@ -573,15 +680,15 @@ import { CircuitCanvas } from 'circuit-bricks';
 
 const OptimizedCircuitView = ({ components, wires }) => {
   // Only re-render visible components based on viewport
-  const [visibleArea, setVisibleArea] = useState({ 
-    x: 0, y: 0, width: 1000, height: 800 
+  const [visibleArea, setVisibleArea] = useState({
+    x: 0, y: 0, width: 1000, height: 800
   });
-  
+
   // Filter to show only components in the viewport
-  const visibleComponents = components.filter(component => 
+  const visibleComponents = components.filter(component =>
     isInViewport(component.position, visibleArea)
   );
-  
+
   return (
     <CircuitCanvas
       components={visibleComponents}
@@ -626,6 +733,7 @@ The test suite includes:
 - Registry validation tests
 - Complex circuit tests
 - Circuit validation tests
+- ZOD schema validation tests
 
 For more details, see the [TESTING-SETUP.md](./TESTING-SETUP.md) document.
 

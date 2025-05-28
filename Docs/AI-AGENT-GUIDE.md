@@ -4,6 +4,77 @@
 
 This guide is designed specifically for AI agents working with Circuit-Bricks to programmatically generate, modify, and analyze electrical circuit diagrams.
 
+## LLM Integration API
+
+Circuit-Bricks provides a comprehensive API specifically designed for Large Language Models (LLMs) to interact with the component registry and generate circuits. This API provides structured, easy-to-understand responses that LLMs can work with effectively.
+
+### Import Methods
+
+You can import the LLM API in several ways:
+
+```typescript
+// Method 1: Import the entire LLM namespace
+import { LLM } from 'circuit-bricks';
+
+// Method 2: Import specific functions
+import {
+  listAvailableComponents,
+  getComponentDetails,
+  searchComponents,
+  validateCircuitDesign,
+  validateComponentInstance,
+  validateWireConnection
+} from 'circuit-bricks/llm';
+
+// For creating missing components
+import { registerComponent } from 'circuit-bricks';
+
+// Method 3: Import from the main package
+import { LLM } from 'circuit-bricks';
+const { listAvailableComponents, validateCircuitDesign } = LLM;
+```
+
+### Key LLM Integration Functions
+
+#### Component Discovery
+- `listAvailableComponents()`: Get all available component types with simplified info
+- `getComponentDetails(componentId)`: Get detailed information about a specific component
+- `searchComponents(query)`: Search components by name, description, or category
+
+
+#### Creating Missing Components
+When you need a component that doesn't exist in the registry, create it yourself using the `ComponentSchema` format:
+
+```typescript
+const newComponent: ComponentSchema = {
+  id: 'inductor',
+  name: 'Inductor',
+  category: 'passive',
+  description: 'A passive component that stores energy in a magnetic field',
+  defaultWidth: 60,
+  defaultHeight: 30,
+  ports: [
+    { id: 'terminal_1', x: 0, y: 15, type: 'inout' },
+    { id: 'terminal_2', x: 60, y: 15, type: 'inout' }
+  ],
+  properties: [
+    { key: 'inductance', label: 'Inductance', type: 'number', default: 10, unit: 'mH', min: 0 },
+    { key: 'tolerance', label: 'Tolerance', type: 'number', default: 5, unit: '%', min: 0, max: 20 }
+  ],
+  svgPath: 'M0,15 L10,15 C15,7 15,23 25,15 C30,7 30,23 40,15 C45,7 45,23 50,15 L60,15'
+};
+
+// Register it in the registry
+registerComponent(newComponent);
+```
+
+#### Validation & Quality Assurance
+- `validateCircuitDesign(circuit)`: Validate a circuit with LLM-friendly error messages
+- `validateComponentInstance(component)`: Validate a single component instance
+- `validateWireConnection(wire, components)`: Validate a wire connection
+
+
+
 ## Core Data Structures
 
 As an AI agent, you'll primarily work with these data structures when generating circuits:
@@ -15,7 +86,7 @@ interface ComponentSchema {
   id: string;                  // Unique identifier (e.g., "resistor")
   name: string;                // Human-readable name (e.g., "Resistor")
   category: string;            // Category for grouping (e.g., "passive")
-  description: string;         // Component description 
+  description: string;         // Component description
   defaultWidth: number;        // Default width in SVG units
   defaultHeight: number;       // Default height in SVG units
   ports: PortSchema[];         // Connection points
@@ -47,7 +118,7 @@ interface Wire {
   };
   to: {                        // Destination connection
     componentId: string;       // Component ID
-    portId: string;            // Port ID on the component 
+    portId: string;            // Port ID on the component
   };
   style?: {                    // Optional styling
     color?: string;            // Wire color
@@ -68,13 +139,61 @@ interface CircuitState {
 }
 ```
 
+## Quick Start for LLMs
+
+Here's a practical example of how an LLM can discover and use components:
+
+```typescript
+import { LLM } from 'circuit-bricks';
+
+// 1. Discover components
+const allComponents = LLM.listAvailableComponents();
+console.log('Available components:', allComponents.map(c => c.name));
+
+// 2. Search for specific components
+const resistors = LLM.searchComponents('resistor');
+console.log('Resistor components:', resistors);
+
+// 3. Get detailed information about a component
+const resistorDetails = LLM.getComponentDetails('resistor');
+console.log('Resistor ports:', resistorDetails?.ports);
+console.log('Resistor properties:', resistorDetails?.properties);
+
+// 4. Generate a circuit
+const ledCircuit = LLM.generateCircuitTemplate('LED circuit with current limiting resistor');
+
+// 5. Validate the circuit
+const validation = LLM.validateCircuitDesign(ledCircuit);
+if (validation.isValid) {
+  console.log('Circuit is valid!');
+} else {
+  console.log('Issues found:', validation.errors);
+  console.log('Suggestions:', validation.suggestions);
+}
+
+// 6. Get a human-readable description
+const description = LLM.describeCircuit(ledCircuit);
+console.log('Circuit description:', description.summary);
+```
+
+### Component Discovery Workflow
+
+For LLMs working with circuit-bricks, follow this discovery workflow:
+
+1. **Start with discovery**: Use `listAvailableComponents()` to understand what's available
+2. **Search or browse**: Use `searchComponents()` for specific needs or `listComponentsByCategory()` to browse
+3. **Get details**: Use `getComponentDetails()` or `getComponentDetailedSummary()` for specific component information
+4. **Generate circuits**: Use `generateCircuitTemplate()` for basic circuits or build manually
+5. **Validate**: Always use `validateCircuitDesign()` to check your circuits
+6. **Iterate**: Use validation feedback and `suggestConnections()` to improve circuits
+
 ## Available Components and Their Ports
 
 ### Basic Components
 
 #### Resistor
 - **Type ID**: `resistor`
-- **Ports**: 
+- **Ports**:
   - `left`: Input/Output port
   - `right`: Input/Output port
 - **Properties**:
@@ -83,7 +202,7 @@ interface CircuitState {
 
 #### Capacitor
 - **Type ID**: `capacitor`
-- **Ports**: 
+- **Ports**:
   - `positive`: Input/Output port
   - `negative`: Input/Output port
 - **Properties**:
@@ -92,7 +211,7 @@ interface CircuitState {
 
 #### Switch
 - **Type ID**: `switch`
-- **Ports**: 
+- **Ports**:
   - `input`: Input port
   - `output`: Output port
 - **Properties**:
@@ -100,7 +219,7 @@ interface CircuitState {
 
 #### Ground
 - **Type ID**: `ground`
-- **Ports**: 
+- **Ports**:
   - `terminal`: Input/Output port
 - **Properties**: None
 
@@ -108,7 +227,7 @@ interface CircuitState {
 
 #### Battery
 - **Type ID**: `battery`
-- **Ports**: 
+- **Ports**:
   - `positive`: Output port
   - `negative`: Output port
 - **Properties**:
@@ -116,7 +235,7 @@ interface CircuitState {
 
 #### Voltage Source
 - **Type ID**: `voltage-source`
-- **Ports**: 
+- **Ports**:
   - `positive`: Output port
   - `negative`: Output port
 - **Properties**:
@@ -127,7 +246,7 @@ interface CircuitState {
 
 #### Diode
 - **Type ID**: `diode`
-- **Ports**: 
+- **Ports**:
   - `anode`: Input port
   - `cathode`: Output port
 - **Properties**:
@@ -135,7 +254,7 @@ interface CircuitState {
 
 #### LED
 - **Type ID**: `led`
-- **Ports**: 
+- **Ports**:
   - `anode`: Input port
   - `cathode`: Output port
 - **Properties**:
@@ -144,7 +263,7 @@ interface CircuitState {
 
 #### Transistor (NPN)
 - **Type ID**: `transistor-npn`
-- **Ports**: 
+- **Ports**:
   - `base`: Input port
   - `collector`: Input/Output port
   - `emitter`: Output port
@@ -182,7 +301,7 @@ const components = [
     props: { voltage: 9 }
   },
   {
-    id: "resistor1", 
+    id: "resistor1",
     type: "resistor",
     position: { x: 250, y: 150 },
     props: { resistance: 330 }
@@ -240,53 +359,18 @@ const wires = [
 
 ### 3. Common Circuit Patterns
 
-#### Series Circuit
-Components connected one after another in a single path:
-
-```
-[Battery] → [Component 1] → [Component 2] → ... → [Ground]
-```
-
-#### Parallel Circuit
-Components connected across the same two points:
-
-```
-           → [Component 1] →
-[Battery] → [Component 2] → [Ground]
-           → [Component 3] →
-```
-
-#### Voltage Divider
-Two resistors in series splitting voltage:
-
-```
-[Battery] → [Resistor 1] → [Output] → [Resistor 2] → [Ground]
-```
-
-#### RC Circuit
-Resistor and capacitor for timing/filtering:
-
-```
-[Battery] → [Resistor] → [Capacitor] → [Ground]
-```
+- **Series**: `[Battery] → [Component 1] → [Component 2] → [Ground]`
+- **Parallel**: Components connected across the same two points
+- **Voltage Divider**: Two resistors in series splitting voltage
+- **RC Circuit**: Resistor and capacitor for timing/filtering
 
 ## Circuit Validation
 
-Always validate generated circuits by checking:
+Always validate generated circuits using `LLM.validateCircuitDesign()`:
 
-1. **Component Validity**:
-   - All component types exist in the registry
-   - All property values are within valid ranges
-
-2. **Connection Validity**:
-   - All referenced components exist
-   - All referenced ports exist
-   - Port types are compatible
-
-3. **Circuit Integrity**:
-   - Circuit is complete (no dangling connections)
-   - No short circuits exist
-   - Required power and ground connections are present
+1. **Component Validity**: All types exist, properties in valid ranges
+2. **Connection Validity**: All components/ports exist and are compatible
+3. **Circuit Integrity**: Complete circuits, no shorts, proper power/ground
 
 ## Example: Complete LED Circuit with Validation
 
@@ -304,7 +388,7 @@ const circuitDescription = {
       id: "r1",
       type: "resistor",
       position: { x: 250, y: 150 },
-      props: { 
+      props: {
         resistance: 330,  // Appropriate for a standard LED at 9V
         tolerance: 5
       }
@@ -313,8 +397,8 @@ const circuitDescription = {
       id: "led1",
       type: "led",
       position: { x: 400, y: 150 },
-      props: { 
-        color: "#ff0000", 
+      props: {
+        color: "#ff0000",
         forwardVoltage: 1.8  // Typical for a red LED
       }
     },
@@ -394,7 +478,7 @@ Add visual distinction to wires:
 For complex circuits, use consistent ID prefixes to indicate logical groups:
 
 ```javascript
-// Power supply section
+// Power supply section`
 {
   id: "ps_battery",
   type: "battery",

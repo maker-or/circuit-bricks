@@ -1,9 +1,9 @@
 /**
  * CircuitCanvas Component
- * 
+ *
  * The main canvas component that renders circuit components and wires.
  * Supports infinite panning and zooming for a free-flowing design experience.
- * 
+ *
  * @component
  * @example
  * <CircuitCanvas
@@ -16,83 +16,83 @@
  * />
  */
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { ComponentInstance, Wire, Point } from '../types';
+import React, { useRef, useState, useEffect, useCallback, forwardRef } from 'react';
+import { ComponentInstance, Wire, Point } from '../schemas/componentSchema';
 import Brick from './Brick';
 import WirePath from './WirePath';
 import { getPortPosition } from '../utils/getPortPosition';
-import { getComponentSchema } from '../registry';
+// import { getComponentSchema } from '../registry';
 
 export interface CircuitCanvasProps {
   /** Array of component instances to render on the canvas */
   components: ComponentInstance[];
-  
+
   /** Array of wires connecting components */
   wires: Wire[];
-  
+
   /** Width of the canvas. Can be a number (pixels) or string (e.g., '100%') */
   width?: number | string;
-  
+
   /** Height of the canvas. Can be a number (pixels) or string (e.g., '100%') */
   height?: number | string;
-  
+
   /** Callback when a component is clicked */
   onComponentClick?: (id: string, event: React.MouseEvent) => void;
-  
+
   /** Callback when a wire is clicked */
   onWireClick?: (id: string, event: React.MouseEvent) => void;
-  
+
   /** Callback when the canvas background is clicked */
   onCanvasClick?: (event: React.MouseEvent) => void;
-  
+
   /** Callback when a component is dragged to a new position */
   onComponentDrag?: (id: string, newPosition: Point) => void;
-  
+
   /** Callback when wire drawing starts from a port */
   onWireDrawStart?: (componentId: string, portId: string) => void;
-  
+
   /** Callback when wire drawing ends on a port. Return true to accept the connection. */
   onWireDrawEnd?: (componentId: string, portId: string) => boolean;
-  
+
   /** Callback when wire drawing is canceled */
   onWireDrawCancel?: () => void;
-  
+
   /** Object representing the current wire drawing state */
   wireDrawing?: {
     isDrawing: boolean;
     fromComponentId: string | null;
     fromPortId: string | null;
   };
-  
+
   /** Array of currently selected component IDs */
   selectedComponentIds?: string[];
-  
+
   /** Array of currently selected wire IDs */
   selectedWireIds?: string[];
-  
+
   /** Whether to show the grid on the canvas */
   showGrid?: boolean;
-  
+
   /** Size of the grid cells in pixels */
   gridSize?: number;
-  
+
   /** Whether to snap components to the grid */
   snapToGrid?: boolean;
-  
+
   /** Callback when a component is dropped onto the canvas */
   onComponentDrop?: (componentType: string, position: Point) => void;
-  
+
   /** Initial zoom level for the canvas (1.0 = 100%) */
   initialZoom?: number;
-  
+
   /** Minimum allowed zoom level */
   minZoom?: number;
-  
+
   /** Maximum allowed zoom level */
   maxZoom?: number;
 }
 
-export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
+export const CircuitCanvas = forwardRef<SVGSVGElement, CircuitCanvasProps>(({
   components,
   wires,
   width = '100%',
@@ -118,8 +118,11 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
   initialZoom = 1.0,
   minZoom = 0.25,
   maxZoom = 3.0
-}) => {
+}, ref) => {
   const svgRef = useRef<SVGSVGElement>(null);
+
+  // Use forwarded ref or internal ref
+  const actualRef = ref || svgRef;
   const [dragState, setDragState] = useState<{
     isDragging: boolean;
     componentId: string | null;
@@ -131,34 +134,34 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
     startPos: null,
     currentPos: null
   });
-  
+
   const [currentMousePos, setCurrentMousePos] = useState<Point | null>(null);
   const [sourcePortPos, setSourcePortPos] = useState<Point | null>(null);
-  
+
   // Viewport state for infinite canvas
   const [viewportTransform, setViewportTransform] = useState({
     x: 0,
     y: 0,
     scale: initialZoom
   });
-  
+
   // For canvas panning
   const [isPanning, setIsPanning] = useState(false);
   const [panStartPos, setPanStartPos] = useState<Point | null>(null);
-  
+
   // Ref to detect if mouse is down (for panning)
   const isMouseDownRef = useRef(false);
 
   // Effect to dispatch viewport-change event when transform changes
   useEffect(() => {
     if (!svgRef.current) return;
-    
+
     // Create a custom event for viewport changes
     const viewportChangeEvent = new CustomEvent('viewport-change', {
       detail: viewportTransform,
       bubbles: true
     });
-    
+
     // Dispatch the event
     svgRef.current.dispatchEvent(viewportChangeEvent);
   }, [viewportTransform]);
@@ -173,7 +176,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           setSourcePortPos(portPos);
         }
       }, 0);
-      
+
       return () => clearTimeout(timer);
     } else {
       setSourcePortPos(null);
@@ -183,19 +186,19 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
   // Convert screen coordinates to SVG coordinates (accounting for pan and zoom)
   const screenToSvgCoordinates = useCallback((clientX: number, clientY: number): Point => {
     if (!svgRef.current) return { x: 0, y: 0 };
-    
+
     const svgRect = svgRef.current.getBoundingClientRect();
     const x = (clientX - svgRect.left - viewportTransform.x) / viewportTransform.scale;
     const y = (clientY - svgRect.top - viewportTransform.y) / viewportTransform.scale;
-    
+
     // Snap to grid if enabled
     if (snapToGrid) {
-      return { 
+      return {
         x: Math.round(x / gridSize) * gridSize,
         y: Math.round(y / gridSize) * gridSize
       };
     }
-    
+
     return { x, y };
   }, [gridSize, snapToGrid, viewportTransform]);
 
@@ -210,7 +213,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
       // If we weren't panning, trigger the canvas click
       if (!isPanning) {
         onCanvasClick?.(e);
-        
+
         // If we're drawing a wire, cancel it
         if (wireDrawing.isDrawing) {
           onWireDrawCancel?.();
@@ -241,12 +244,12 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
       startPos,
       currentPos: startPos
     });
-    
+
     // Ensure the component is selected
     if (!selectedComponentIds.includes(componentId) && onComponentClick) {
       onComponentClick(componentId, event);
     }
-    
+
     event.stopPropagation();
   };
 
@@ -257,7 +260,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
       setIsPanning(true);
       setPanStartPos({ x: event.clientX, y: event.clientY });
       isMouseDownRef.current = true;
-      
+
       // Prevent default to avoid text selection
       event.preventDefault();
     }
@@ -268,25 +271,25 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
     if (isPanning && panStartPos) {
       const dx = event.clientX - panStartPos.x;
       const dy = event.clientY - panStartPos.y;
-      
+
       setViewportTransform(prev => ({
         ...prev,
         x: prev.x + dx,
         y: prev.y + dy
       }));
-      
+
       setPanStartPos({ x: event.clientX, y: event.clientY });
       return;
     }
-    
+
     // For regular interaction, convert coordinates
     const currentPos = getSvgCoordinates(event);
     setCurrentMousePos(currentPos);
-    
+
     // Update drag position if dragging
     if (dragState.isDragging && dragState.componentId) {
       setDragState({ ...dragState, currentPos });
-      
+
       // Find the component being dragged
       const component = components.find(c => c.id === dragState.componentId);
       if (component && dragState.startPos && currentPos) {
@@ -297,13 +300,13 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           x: component.position.x + dx,
           y: component.position.y + dy
         };
-        
+
         // Snap to grid if needed (now controlled by snapToGrid prop)
         if (snapToGrid) {
           newPosition.x = Math.round(newPosition.x / gridSize) * gridSize;
           newPosition.y = Math.round(newPosition.y / gridSize) * gridSize;
         }
-        
+
         // Call the onComponentDrag handler
         onComponentDrag?.(dragState.componentId, newPosition);
       }
@@ -320,16 +323,16 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
         currentPos: null
       });
     }
-    
+
     // End panning
     if (isPanning) {
       setIsPanning(false);
       setPanStartPos(null);
     }
-    
+
     isMouseDownRef.current = false;
   };
-  
+
   // Handle mouse leaving the canvas
   const handleMouseLeave = () => {
     if (isPanning) {
@@ -338,33 +341,33 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
     }
     isMouseDownRef.current = false;
   };
-  
+
   // Handle wheel event for zooming
   const handleWheel = (event: React.WheelEvent) => {
     event.preventDefault();
-    
+
     // Only zoom if ctrl key is pressed
     if (event.ctrlKey || event.metaKey) {
       const delta = event.deltaY > 0 ? -0.1 : 0.1;
       const newScale = Math.max(minZoom, Math.min(maxZoom, viewportTransform.scale + delta));
-      
+
       // Get mouse position relative to SVG
       const svgRect = svgRef.current?.getBoundingClientRect();
       if (!svgRect) return;
-      
+
       const mouseX = event.clientX - svgRect.left;
       const mouseY = event.clientY - svgRect.top;
-      
+
       // Calculate new transform origin based on mouse position
       setViewportTransform(prev => {
         // Calculate the point in world coordinates
         const worldX = (mouseX - prev.x) / prev.scale;
         const worldY = (mouseY - prev.y) / prev.scale;
-        
+
         // Calculate new transform (zoom around mouse position)
         const newX = mouseX - worldX * newScale;
         const newY = mouseY - worldY * newScale;
-        
+
         return {
           x: newX,
           y: newY,
@@ -391,9 +394,9 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
   const handlePortClick = (componentId: string, portId: string, event: React.MouseEvent) => {
     // Ignore port clicks when panning
     if (isPanning) return;
-    
+
     event.stopPropagation();
-    
+
     // If we're not drawing a wire, start drawing
     if (!wireDrawing.isDrawing) {
       onWireDrawStart?.(componentId, portId);
@@ -411,15 +414,15 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
     const dx = to.x - from.x;
     const dy = to.y - from.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    
+
     // For very short distances, use a straight line
     if (distance < 20) {
       return `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
     }
-    
+
     // Calculate control points with optimized offset
     const controlPointLength = Math.min(distance / 3, 60); // Reduced for smoother curves
-    
+
     // Determine dominant axis and adjust control points to create natural curves
     if (Math.abs(dx) > Math.abs(dy)) {
       // Horizontal dominant
@@ -437,7 +440,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
       return `M ${from.x} ${from.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${to.x} ${to.y}`;
     }
   };
-  
+
   // Handle drag and drop events for component palette
   const handleDragOver = (event: React.DragEvent) => {
     // Prevent default to allow drop
@@ -445,17 +448,17 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
     // Set the drop effect to copy
     event.dataTransfer.dropEffect = 'copy';
   };
-  
+
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
-    
+
     // Get the component type from the drag data
     const componentType = event.dataTransfer.getData('application/circuit-component');
     if (!componentType || !onComponentDrop) return;
-    
+
     // Get drop position in SVG coordinates (taking into account pan/zoom)
     const position = getSvgCoordinates(event);
-    
+
     // Create a new component at this position
     onComponentDrop(componentType, position);
   };
@@ -465,18 +468,18 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only process when the canvas is active
       if (!svgRef.current) return;
-      
+
       // Ignore if we're in an input field
-      if (e.target instanceof HTMLInputElement || 
+      if (e.target instanceof HTMLInputElement ||
           e.target instanceof HTMLTextAreaElement) {
         return;
       }
-      
+
       // Handle space key for panning toggle
       if (e.code === 'Space' && !isPanning && document.activeElement === document.body) {
         e.preventDefault(); // Prevent page scroll
       }
-      
+
       // Reset view with key '0'
       if (e.key === '0' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
@@ -486,7 +489,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           scale: 1.0
         });
       }
-      
+
       // Zoom in with + or =
       if ((e.key === '+' || e.key === '=') && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
@@ -495,7 +498,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           scale: Math.min(maxZoom, prev.scale + 0.1)
         }));
       }
-      
+
       // Zoom out with -
       if (e.key === '-' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
@@ -504,19 +507,19 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           scale: Math.max(minZoom, prev.scale - 0.1)
         }));
       }
-      
+
       // Arrow keys for panning when Alt is pressed
       if (e.altKey && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
         const panAmount = e.shiftKey ? 50 : 20; // Faster panning with Shift
-        
+
         setViewportTransform(prev => {
           let dx = 0, dy = 0;
           if (e.key === 'ArrowLeft') dx = panAmount;
           if (e.key === 'ArrowRight') dx = -panAmount;
           if (e.key === 'ArrowUp') dy = panAmount;
           if (e.key === 'ArrowDown') dy = -panAmount;
-          
+
           return {
             ...prev,
             x: prev.x + dx,
@@ -525,7 +528,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
         });
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -534,7 +537,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
 
   // State for showing help message
   const [showHelp, setShowHelp] = useState(true);
-  
+
   // Hide help message after 15 seconds
   useEffect(() => {
     if (showHelp) {
@@ -561,11 +564,11 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
   };
 
   return (
-    <svg 
-      ref={svgRef}
+    <svg
+      ref={actualRef}
       width={width}
       height={height}
-      style={{ 
+      style={{
         backgroundColor: '#111111',
         userSelect: 'none',
         cursor: getCursorStyle(),
@@ -593,7 +596,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           <rect width={getGridSize()} height={getGridSize()} fill="#111111" />
           <circle cx={getGridSize()} cy={getGridSize()} r="0.5" fill="#222222" />
         </pattern>
-        
+
         <pattern
           id="dots"
           width={getGridSize()}
@@ -604,7 +607,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           <rect width={getGridSize()} height={getGridSize()} fill="#111111" />
           <circle cx={getGridSize()/2} cy={getGridSize()/2} r="0.7" fill="#222222" />
         </pattern>
-        
+
         {/* Pattern for infinite grid that adjusts with pan/zoom */}
         <pattern
           id="infinite-grid"
@@ -614,12 +617,12 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           patternTransform={`translate(${viewportTransform.x % (getGridSize() * 5)},${viewportTransform.y % (getGridSize() * 5)}) scale(${viewportTransform.scale})`}
         >
           <rect width={getGridSize() * 5} height={getGridSize() * 5} fill="#111111" />
-          <path 
+          <path
             d={`M 0 0 H ${getGridSize() * 5} M 0 ${getGridSize()} H ${getGridSize() * 5} M 0 ${getGridSize() * 2} H ${getGridSize() * 5} M 0 ${getGridSize() * 3} H ${getGridSize() * 5} M 0 ${getGridSize() * 4} H ${getGridSize() * 5} M 0 0 V ${getGridSize() * 5} M ${getGridSize()} 0 V ${getGridSize() * 5} M ${getGridSize() * 2} 0 V ${getGridSize() * 5} M ${getGridSize() * 3} 0 V ${getGridSize() * 5} M ${getGridSize() * 4} 0 V ${getGridSize() * 5}`}
             stroke="#222222"
             strokeWidth="0.3"
           />
-          <path 
+          <path
             d={`M 0 0 H ${getGridSize() * 5} M 0 ${getGridSize() * 5} H ${getGridSize() * 5} M 0 0 V ${getGridSize() * 5} M ${getGridSize() * 5} 0 V ${getGridSize() * 5}`}
             stroke="#333333"
             strokeWidth="0.5"
@@ -642,7 +645,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
               onClick={(e) => handleWireClick(wire.id, e)}
             />
           ))}
-          
+
           {/* Wire currently being drawn */}
           {wireDrawing.isDrawing && sourcePortPos && currentMousePos && (
             <path
@@ -671,7 +674,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           ))}
         </g>
       </g>
-      
+
       {/* Viewport information overlay (optional for debugging) */}
       {process.env.NODE_ENV === 'development' && (
         <text
@@ -684,7 +687,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           {`Position: (${Math.round(viewportTransform.x)}, ${Math.round(viewportTransform.y)}) | Zoom: ${viewportTransform.scale.toFixed(2)}`}
         </text>
       )}
-      
+
       {/* Minimap for navigation in infinite canvas (bottom-left) */}
       <g className="circuit-minimap" transform={`translate(10, ${typeof height === 'number' ? height - 120 : 'calc(100% - 120px)'})`}>
         <rect
@@ -698,7 +701,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           strokeWidth="1"
           rx="4"
         />
-        
+
         {/* Viewport indicator */}
         <rect
           x={5}
@@ -709,11 +712,11 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           stroke="#333"
           strokeWidth="1"
         />
-        
+
         {/* Components representation */}
         <g transform="scale(0.1) translate(50, 50)">
           {components.map(component => (
-            <circle 
+            <circle
               key={component.id}
               cx={component.position.x}
               cy={component.position.y}
@@ -721,7 +724,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
               fill={selectedComponentIds.includes(component.id) ? "#4f8ef7" : "#666"}
             />
           ))}
-          
+
           {/* Viewport window representation */}
           <rect
             x={-viewportTransform.x / viewportTransform.scale}
@@ -734,7 +737,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
             strokeDasharray="20,10"
           />
         </g>
-        
+
         {/* Toggle button */}
         <rect
           x="85"
@@ -755,7 +758,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           ×
         </text>
       </g>
-      
+
       {/* Help message for infinite canvas */}
       {showHelp && (
         <g transform={`translate(${typeof width === 'number' ? width / 2 - 150 : '50%'}, 30)`}>
@@ -796,9 +799,9 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           </text>
         </g>
       )}
-      
+
       {/* Mini controls overlay */}
-      <g 
+      <g
         transform="translate(10, 10)"
         style={{ opacity: 0.7 }}
         onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
@@ -813,7 +816,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           fill="#222"
           fillOpacity="0.8"
         />
-        <g 
+        <g
           transform="translate(10, 11)"
           cursor="pointer"
           onClick={() => setViewportTransform(prev => ({...prev, scale: Math.min(maxZoom, prev.scale + 0.1)}))}
@@ -821,7 +824,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           <circle r="8" fill="#333" />
           <path d="M-4,0 H4 M0,-4 V4" stroke="#aaa" strokeWidth="1.5" />
         </g>
-        <g 
+        <g
           transform="translate(40, 11)"
           cursor="pointer"
           onClick={() => setViewportTransform(prev => ({...prev, scale: Math.max(minZoom, prev.scale - 0.1)}))}
@@ -829,7 +832,7 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
           <circle r="8" fill="#333" />
           <path d="M-4,0 H4" stroke="#aaa" strokeWidth="1.5" />
         </g>
-        <g 
+        <g
           transform="translate(70, 11)"
           cursor="pointer"
           onClick={() => setViewportTransform({x: 0, y: 0, scale: 1})}
@@ -840,6 +843,8 @@ export const CircuitCanvas: React.FC<CircuitCanvasProps> = ({
       </g>
     </svg>
   );
-};
+});
+
+CircuitCanvas.displayName = 'CircuitCanvas';
 
 export default CircuitCanvas;

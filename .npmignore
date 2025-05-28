@@ -8,6 +8,7 @@ rolldown.config.ts
 tsconfig.json
 tsconfig.tsbuildinfo
 .github/
+agent-test/
 
 # Documentation files that don't need to be in the package
 TECHNICAL-DESIGN.md

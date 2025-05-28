@@ -1,11 +1,11 @@
 /**
  * Port Component
- * 
+ *
  * Renders a connection port on a circuit component
  */
 
 import React from 'react';
-import { PortSchema } from '../types';
+import { PortSchema } from '../schemas/componentSchema';
 
 export interface PortProps {
   componentId: string;

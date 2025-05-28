@@ -1,11 +1,11 @@
 /**
  * BaseComponent
- * 
+ *
  * A core component that renders SVG for a circuit component based on its schema.
  */
 
 import React from 'react';
-import { ComponentSchema, ComponentInstance } from '../types';
+import { ComponentSchema, ComponentInstance } from '../schemas/componentSchema';
 import Port from './Port';
 
 export interface BaseComponentProps {
@@ -26,7 +26,7 @@ const BaseComponent: React.FC<BaseComponentProps> = ({
   selected = false
 }) => {
   const { id, position, size, rotation = 0 } = component;
-  
+
   // Determine the size to use - from the component instance or defaults
   const width = size?.width || schema.defaultWidth;
   const height = size?.height || schema.defaultHeight;
@@ -72,7 +72,7 @@ const BaseComponent: React.FC<BaseComponentProps> = ({
           <path
             d={schema.svgPath}
             fill="none"
-            stroke="black"
+            stroke="white"
             strokeWidth={2}
             vectorEffect="non-scaling-stroke"
           />

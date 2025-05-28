@@ -91,5 +91,5 @@
       "default": "Custom IC"
     }
   ],
-  "svgPath": "<svg width='80' height='100'><rect x='10' y='10' width='60' height='80' fill='none' stroke='black' stroke-width='2'/><text x='40' y='50' text-anchor='middle' font-family='monospace' font-size='12'>IC</text><circle cx='20' cy='10' r='3' fill='none' stroke='black'/></svg>"
+  "svgPath": "<svg width='80' height='100'><rect x='10' y='10' width='60' height='80' fill='none' stroke='white' stroke-width='2'/><text x='40' y='50' text-anchor='middle' font-family='monospace' font-size='12' fill='white'>IC</text><circle cx='20' cy='10' r='3' fill='none' stroke='white'/></svg>"
 }

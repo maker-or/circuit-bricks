@@ -8,24 +8,160 @@ Circuit-Bricks is a React + TypeScript library that provides a modular, Lego-sty
 
 ## Table of Contents
 
-1. [Development Status](#development-status)
-2. [Architecture](#architecture)
-3. [Core Components](#core-components)
-4. [Component Registry](#component-registry)
-5. [Hooks](#hooks)
-6. [UI Components](#ui-components)
-7. [Utilities](#utilities)
-8. [Usage Examples](#usage-examples)
-   - [Basic Circuit](#basic-circuit)
-   - [Interactive Editor](#interactive-editor)
-   - [Advanced Circuit Examples](#advanced-circuit-examples)
-9. [Component Schema Reference](#component-schema-reference)
-10. [API Reference](#api-reference)
-11. [Performance Optimization](#performance-optimization)
-12. [Recent Additions (Phase 3 & 4)](#recent-additions-phase-3--4)
-13. [Implementation Details](#implementation-details)
-14. [Best Practices](#best-practices)
-15. [Conclusion](#conclusion)
+1. [Quick Start](#quick-start)
+2. [Installation](#installation)
+3. [Development Status](#development-status)
+4. [Architecture](#architecture)
+5. [Core Components](#core-components)
+6. [Component Registry](#component-registry)
+7. [Hooks](#hooks)
+8. [UI Components](#ui-components)
+9. [ZOD Schemas & Validation](#zod-schemas--validation)
+10. [Usage Examples](#usage-examples)
+11. [Custom Components](#custom-components)
+12. [SSR & Mobile Support](#ssr--mobile-support)
+13. [Testing](#testing)
+14. [Contributing](#contributing)
+15. [API Reference](#api-reference)
+
+## Quick Start
+
+### Installation
+
+```bash
+# npm
+npm install circuit-bricks
+
+# yarn
+yarn add circuit-bricks
+
+# pnpm
+pnpm add circuit-bricks
+```
+
+### Basic Usage
+
+```tsx
+import React from 'react';
+import { CircuitCanvas, useCircuit } from 'circuit-bricks';
+
+const SimpleCircuit = () => {
+  const { components, wires, addComponent, addWire } = useCircuit();
+
+  React.useEffect(() => {
+    const batteryId = addComponent({
+      type: 'battery',
+      position: { x: 100, y: 150 },
+      props: { voltage: 9 }
+    });
+
+    const resistorId = addComponent({
+      type: 'resistor',
+      position: { x: 250, y: 150 },
+      props: { resistance: 330 }
+    });
+
+    addWire({
+      from: { componentId: batteryId, portId: 'positive' },
+      to: { componentId: resistorId, portId: 'left' }
+    });
+  }, [addComponent, addWire]);
+
+  return (
+    <div style={{ width: '100%', height: '400px' }}>
+      <CircuitCanvas
+        components={components}
+        wires={wires}
+        showGrid={true}
+      />
+    </div>
+  );
+};
+```
+
+### Complete Circuit Editor
+
+```tsx
+import {
+  CircuitCanvas,
+  useCircuit,
+  PropertyPanel,
+  ComponentPalette,
+  CircuitToolbar
+} from 'circuit-bricks';
+
+const CircuitEditor = () => {
+  const {
+    components,
+    wires,
+    addComponent,
+    updateComponent,
+    removeComponent,
+    selectedComponent,
+    setSelectedComponent,
+    clearSelection
+  } = useCircuit();
+
+  return (
+    <div style={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
+      <CircuitToolbar
+        onAction={(action) => {
+          if (action === 'delete' && selectedComponent) {
+            removeComponent(selectedComponent);
+          }
+        }}
+        hasSelection={!!selectedComponent}
+      />
+
+      <div style={{ display: 'flex', flex: 1 }}>
+        <ComponentPalette
+          onSelectComponent={(type) => {
+            addComponent({
+              type,
+              position: { x: 200, y: 200 },
+              props: {}
+            });
+          }}
+        />
+
+        <CircuitCanvas
+          components={components}
+          wires={wires}
+          onComponentClick={setSelectedComponent}
+          onCanvasClick={clearSelection}
+          showGrid={true}
+        />
+
+        {selectedComponent && (
+          <PropertyPanel
+            component={components[selectedComponent]}
+            onPropertyChange={(key, value) => {
+              updateComponent(selectedComponent, {
+                props: { ...components[selectedComponent].props, [key]: value }
+              });
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
+```
+
+## Installation
+
+```bash
+# npm
+npm install circuit-bricks
+
+# yarn
+yarn add circuit-bricks
+
+# pnpm
+pnpm add circuit-bricks
+```
+
+> **Note:** As this is an alpha-stage library, consider using a specific version or commit hash in your package.json to prevent unexpected changes when the API evolves.
 
 ## Development Status
 
@@ -76,17 +212,19 @@ We welcome contributions and feedback from early adopters, but please be aware o
 Circuit-Bricks follows a modular architecture consisting of several layers:
 
 1. **Core Layer**: Defines the fundamental types and interfaces used throughout the library.
-2. **Registry Layer**: Manages component schemas and their registration.
-3. **Rendering Layer**: Includes React components for rendering circuit elements.
-4. **State Management Layer**: Provides hooks for managing circuit state.
-5. **UI Layer**: Offers optional UI components for editing and interacting with circuits.
+2. **Schema Layer**: Provides ZOD schemas for runtime validation of component schemas and circuit states.
+3. **Registry Layer**: Manages component schemas and their registration.
+4. **Rendering Layer**: Includes React components for rendering circuit elements.
+5. **State Management Layer**: Provides hooks for managing circuit state.
+6. **UI Layer**: Offers optional UI components for editing and interacting with circuits.
 
 ### Directory Structure
 
 ```
 src/
 ├─ index.ts                 # Main exports
-├─ types.ts                 # Core type definitions
+├─ schemas/                 # ZOD schema definitions (single source of truth)
+│  └─ componentSchema.ts    # ZOD schemas and derived TypeScript types
 ├─ core/                    # Core rendering components
 │  ├─ BaseComponent.tsx     # Base SVG rendering
 │  ├─ Brick.tsx             # Schema to component mapper
@@ -104,10 +242,15 @@ src/
 ├─ ui/                      # Optional UI components
 │  ├─ PropertyPanel.tsx     # Component property editor
 │  ├─ ComponentPalette.tsx  # Component selection palette
-│  └─ CircuitToolbar.tsx    # Actions toolbar
+│  ├─ CircuitToolbar.tsx    # Actions toolbar
+│  └─ headless/             # Headless (unstyled) components
+│     ├─ HeadlessPropertyPanel.tsx
+│     ├─ HeadlessComponentPalette.tsx
+│     └─ HeadlessCircuitToolbar.tsx
 └─ utils/                   # Utility functions
    ├─ getPortPosition.ts    # DOM position helpers
-   └─ circuitValidation.ts  # Circuit validation utilities
+   ├─ circuitValidation.ts  # Circuit validation utilities
+   └─ zodValidation.ts      # ZOD schema validation utilities
 ```
 
 ## Core Components
@@ -172,7 +315,7 @@ The registry is a core part of Circuit-Bricks that manages component schemas and
 ```typescript
 /**
  * Registry module for component schemas
- * 
+ *
  * This module provides utilities for registering, retrieving, and managing component schemas.
  * The component registry is a central repository of all available component types that can
  * be used in circuits. Each component is defined by a schema that specifies its appearance,
@@ -181,9 +324,9 @@ The registry is a core part of Circuit-Bricks that manages component schemas and
 
 /**
  * Register a component schema in the registry
- * 
+ *
  * @param {ComponentSchema} schema - The component schema to register
- * 
+ *
  * @example
  * // Register a custom LED component
  * registerComponent({
@@ -207,7 +350,7 @@ function registerComponent(schema: ComponentSchema): void;
 
 /**
  * Get a component schema from the registry by ID
- * 
+ *
  * @param {string} id - The unique identifier of the component
  * @returns {ComponentSchema | undefined} The component schema or undefined if not found
  */
@@ -215,14 +358,14 @@ function getComponentSchema(id: string): ComponentSchema | undefined;
 
 /**
  * Get all component schemas in the registry
- * 
+ *
  * @returns {ComponentSchema[]} Array of all registered component schemas
  */
 function getAllComponents(): ComponentSchema[];
 
 /**
  * Get component schemas filtered by category
- * 
+ *
  * @param {string} category - The category to filter by
  * @returns {ComponentSchema[]} Array of component schemas in the specified category
  */
@@ -234,41 +377,41 @@ function getComponentsByCategory(category: string): ComponentSchema[];
 ```typescript
 /**
  * Complete schema definition for a circuit component
- * 
+ *
  * The ComponentSchema defines everything about a component type:
  * - Visual representation (SVG path)
  * - Connection points (ports)
  * - Configurable properties
  * - Default dimensions
- * 
+ *
  * This schema is used to register components in the component registry
  * and serves as a blueprint for creating component instances.
  */
 export interface ComponentSchema {
   /** Unique identifier for the component type */
   id: string;
-  
+
   /** Display name shown in UI */
   name: string;
-  
+
   /** Category for grouping similar components */
   category: string;
-  
+
   /** Detailed description of the component */
   description: string;
-  
+
   /** Default width in pixels */
   defaultWidth: number;
-  
+
   /** Default height in pixels */
   defaultHeight: number;
-  
+
   /** Array of port definitions */
   ports: PortSchema[];
-  
+
   /** Array of configurable property definitions */
   properties: PropertySchema[];
-  
+
   /** SVG path data for rendering the component */
   svgPath: string;
 }
@@ -387,28 +530,283 @@ const { from, to, error } = usePortPosition(wire);
 />
 ```
 
-## Utilities
+### Headless UI Components
 
-### getPortPosition
+Circuit-Bricks provides headless (unstyled) versions of all UI components, allowing you to fully customize the appearance using your preferred styling method.
 
-`getPortPosition` calculates the absolute position of a port in the SVG coordinate system by querying the DOM.
+#### HeadlessPropertyPanel
 
-```typescript
-const position = getPortPosition(componentId, portId);
-// { x: 123, y: 456 }
+```tsx
+<HeadlessPropertyPanel
+  component={selectedComponent}
+  onPropertyChange={handlePropertyChange}
+  className="custom-panel"
+  classNames={{
+    header: "custom-header",
+    title: "custom-title"
+  }}
+  style={{ backgroundColor: '#ffffff' }}
+  styles={{
+    header: { padding: '16px' },
+    title: { fontSize: '18px' }
+  }}
+/>
 ```
 
-### validateCircuit
+#### HeadlessComponentPalette
 
-`validateCircuit` checks for common issues in a circuit:
-- Missing component references in wires
-- Floating inputs/outputs
-- Short circuits (multiple outputs connected)
+```tsx
+<HeadlessComponentPalette
+  onSelectComponent={handleSelectComponent}
+  className="custom-palette"
+  classNames={{
+    header: "custom-header",
+    searchInput: "custom-search"
+  }}
+  style={{ backgroundColor: '#ffffff' }}
+  styles={{
+    header: { padding: '16px' },
+    searchInput: { borderRadius: '8px' }
+  }}
+/>
+```
+
+#### HeadlessCircuitToolbar
+
+```tsx
+<HeadlessCircuitToolbar
+  onAction={handleToolbarAction}
+  hasSelection={hasSelectedElements}
+  canUndo={canUndo}
+  canRedo={canRedo}
+  className="custom-toolbar"
+  classNames={{
+    group: "custom-group",
+    button: "custom-button"
+  }}
+  style={{ backgroundColor: '#ffffff' }}
+  styles={{
+    group: { padding: '8px' },
+    button: { borderRadius: '4px' }
+  }}
+/>
+```
+
+For more details on using headless components, see the [Headless Components](./HEADLESS-COMPONENTS.md) documentation.
+
+## ZOD Schemas & Validation
+
+Circuit-Bricks uses [Zod](https://github.com/colinhacks/zod) for runtime type validation. Zod is a TypeScript-first schema declaration and validation library that allows us to define schemas for our data structures and validate them at runtime.
+
+### Schema Definitions
+
+The ZOD schemas are defined in `src/schemas/componentSchema.ts` and provide validation for all the core types in the library:
 
 ```typescript
-const issues = validateCircuit(circuitState);
-// [{ type: 'error', message: '...', componentId: '...' }, ...]
+// Basic types
+export const portTypeSchema = z.enum(['input', 'output', 'inout']);
+export const pointSchema = z.object({ x: z.number(), y: z.number() });
+export const sizeSchema = z.object({ width: z.number(), height: z.number() });
+
+// Component schemas
+export const portSchema = z.object({
+  id: z.string(),
+  x: z.number(),
+  y: z.number(),
+  type: portTypeSchema,
+  label: z.string().optional(),
+});
+
+export const propertySchema = z.object({
+  key: z.string(),
+  label: z.string(),
+  type: z.enum(['number', 'boolean', 'select', 'text', 'color']),
+  unit: z.string().optional(),
+  options: z.array(
+    z.object({
+      value: z.any(),
+      label: z.string(),
+    })
+  ).optional(),
+  default: z.any(),
+  min: z.number().optional(),
+  max: z.number().optional(),
+});
 ```
+
+### Validation Functions
+
+```typescript
+import { validateComponentSchema, validateCircuitState } from 'circuit-bricks';
+
+// Validate a component schema
+const result = validateComponentSchema(myCustomComponent);
+if (result.success) {
+  console.log('Component schema is valid!');
+} else {
+  console.error('Validation failed:', result.error);
+}
+
+// Validate circuit state
+const circuitResult = validateCircuitState(circuitState);
+if (circuitResult.success) {
+  console.log('Circuit state is valid!');
+} else {
+  console.error('Circuit validation failed:', circuitResult.error);
+}
+```
+
+## Custom Components
+
+You can extend Circuit-Bricks with your own custom components:
+
+```tsx
+import { registerComponent } from 'circuit-bricks';
+
+// Define a custom component schema
+const myInductor = {
+  id: 'inductor',
+  name: 'Inductor',
+  category: 'passive',
+  description: 'A passive component that stores energy in a magnetic field',
+  defaultWidth: 80,
+  defaultHeight: 30,
+  ports: [
+    { id: 'left', x: 0, y: 15, type: 'inout' },
+    { id: 'right', x: 80, y: 15, type: 'inout' }
+  ],
+  properties: [
+    {
+      key: 'inductance',
+      label: 'Inductance',
+      type: 'number',
+      unit: 'mH',
+      default: 10,
+      min: 0
+    }
+  ],
+  svgPath: "M10,15 h10 C25,5 25,25 35,15 C45,5 45,25 55,15 C65,5 65,25 70,15 h10"
+};
+
+// Register it with the component registry
+registerComponent(myInductor);
+
+// Now you can use it like any built-in component
+const inductorId = addComponent({
+  type: 'inductor',
+  position: { x: 100, y: 150 },
+  props: { inductance: 15 }
+});
+```
+
+## SSR & Mobile Support
+
+### SSR-Safe Components
+
+Circuit-Bricks provides SSR-safe components for server-side rendering:
+
+```tsx
+import { SSRSafeCircuitCanvas } from 'circuit-bricks';
+
+function MyCircuitPage() {
+  return (
+    <SSRSafeCircuitCanvas
+      components={components}
+      wires={wires}
+      width={800}
+      height={600}
+    />
+  );
+}
+```
+
+### Mobile Touch Support
+
+```tsx
+import { useTouchGestures, useIsMobile } from 'circuit-bricks';
+
+function TouchableCircuit() {
+  const isMobile = useIsMobile();
+  const touchHandlers = useTouchGestures((gesture) => {
+    switch (gesture.type) {
+      case 'tap':
+        console.log('Tapped at:', gesture.startPoint);
+        break;
+      case 'pan':
+        console.log('Panning:', gesture.deltaX, gesture.deltaY);
+        break;
+      case 'pinch':
+        console.log('Pinch scale:', gesture.scale);
+        break;
+    }
+  });
+
+  return (
+    <div {...touchHandlers} className="touch-area">
+      <CircuitCanvas
+        components={components}
+        wires={wires}
+        gridSize={isMobile ? 15 : 25}
+        showGrid={!isMobile}
+      />
+    </div>
+  );
+}
+```
+
+### Framework Integration
+
+**Next.js:**
+```tsx
+import dynamic from 'next/dynamic';
+
+const CircuitCanvas = dynamic(
+  () => import('circuit-bricks').then(mod => mod.SSRSafeCircuitCanvas),
+  { ssr: true }
+);
+```
+
+**Gatsby:**
+```tsx
+import { SSRSafeCircuitCanvas } from 'circuit-bricks';
+
+const CircuitPage = () => (
+  <SSRSafeCircuitCanvas components={components} wires={wires} />
+);
+```
+
+## Testing
+
+Circuit-Bricks includes comprehensive testing utilities:
+
+```tsx
+import { render, screen } from '@testing-library/react';
+import { CircuitCanvas } from 'circuit-bricks';
+
+test('renders circuit components', () => {
+  const components = [
+    {
+      id: 'test-resistor',
+      type: 'resistor',
+      position: { x: 100, y: 100 },
+      props: { resistance: 1000 }
+    }
+  ];
+
+  render(<CircuitCanvas components={components} wires={[]} />);
+
+  expect(screen.getByTestId('component-test-resistor')).toBeInTheDocument();
+});
+```
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details on:
+
+- Setting up the development environment
+- Code style guidelines
+- Testing requirements
+- Pull request process
 
 ## Usage Examples
 
@@ -536,10 +934,10 @@ const CircuitEditor = () => {
         onAction={handleToolbarAction}
         hasSelection={state.selectedComponentIds.length > 0}
       />
-      
+
       <div className="editor-main">
         <ComponentPalette onSelectComponent={handleSelectComponent} />
-        
+
         <CircuitCanvas
           components={state.components}
           wires={state.wires}
@@ -549,7 +947,7 @@ const CircuitEditor = () => {
           width="800px"
           height="600px"
         />
-        
+
         <PropertyPanel
           component={selectedComponent}
           onPropertyChange={handlePropertyChange}
@@ -582,7 +980,7 @@ const VoltageRegulatorExample = () => {
     const regulatorId = actions.addComponent({
       type: 'ic',
       position: { x: 300, y: 100 },
-      props: { 
+      props: {
         name: '7805',
         pins: 3,
         width: 60,
@@ -620,7 +1018,7 @@ const VoltageRegulatorExample = () => {
       { componentId: batteryId, portId: 'positive' },
       { componentId: regulatorId, portId: 'input' }
     );
-    
+
     actions.addWire(
       { componentId: regulatorId, portId: 'output' },
       { componentId: loadResistorId, portId: 'left' }
@@ -663,7 +1061,7 @@ const TimerCircuitExample = () => {
     const timerICId = actions.addComponent({
       type: 'ic',
       position: { x: 300, y: 150 },
-      props: { 
+      props: {
         name: '555',
         pins: 8,
         width: 80,
@@ -694,7 +1092,7 @@ const TimerCircuitExample = () => {
       position: { x: 500, y: 150 },
       props: { color: '#ff0000' }
     });
-    
+
     // Connect components with wires
     actions.addWire(
       { componentId: timerICId, portId: 'out' },
@@ -969,7 +1367,7 @@ Circuit-Bricks is optimized for performance and has a small footprint:
 For optimal performance when working with large or complex circuits:
 
 1. **Component Memoization**
-   
+
    All core components use React.memo to prevent unnecessary re-renders:
 
    ```tsx
@@ -984,7 +1382,7 @@ For optimal performance when working with large or complex circuits:
 
    ```tsx
    // Example using a visibility check function
-   const visibleComponents = components.filter(comp => 
+   const visibleComponents = components.filter(comp =>
      isInViewport(comp.position, viewportBounds)
    );
    ```
@@ -1023,7 +1421,7 @@ For optimal performance when working with large or complex circuits:
    For applications with many different circuit examples or component types, consider lazy loading:
 
    ```tsx
-   const VoltageRegulatorExample = React.lazy(() => 
+   const VoltageRegulatorExample = React.lazy(() =>
      import('./examples/VoltageRegulatorExample')
    );
    ```
@@ -1092,10 +1490,10 @@ The CircuitCanvas is the main component that renders circuit components and wire
 ```typescript
 /**
  * CircuitCanvas Component
- * 
+ *
  * The main canvas component that renders circuit components and wires.
  * Supports infinite panning and zooming for a free-flowing design experience.
- * 
+ *
  * @component
  * @example
  * <CircuitCanvas
@@ -1116,68 +1514,68 @@ The CircuitCanvas is the main component that renders circuit components and wire
 export interface CircuitCanvasProps {
   /** Array of component instances to render on the canvas */
   components: ComponentInstance[];
-  
+
   /** Array of wires connecting components */
   wires: Wire[];
-  
+
   /** Width of the canvas. Can be a number (pixels) or string (e.g., '100%') */
   width?: number | string;
-  
+
   /** Height of the canvas. Can be a number (pixels) or string (e.g., '100%') */
   height?: number | string;
-  
+
   /** Callback when a component is clicked */
   onComponentClick?: (id: string, event: React.MouseEvent) => void;
-  
+
   /** Callback when a wire is clicked */
   onWireClick?: (id: string, event: React.MouseEvent) => void;
-  
+
   /** Callback when the canvas background is clicked */
   onCanvasClick?: (event: React.MouseEvent) => void;
-  
+
   /** Callback when a component is dragged to a new position */
   onComponentDrag?: (id: string, newPosition: Point) => void;
-  
+
   /** Callback when wire drawing starts from a port */
   onWireDrawStart?: (componentId: string, portId: string) => void;
-  
+
   /** Callback when wire drawing ends on a port. Return true to accept the connection. */
   onWireDrawEnd?: (componentId: string, portId: string) => boolean;
-  
+
   /** Callback when wire drawing is canceled */
   onWireDrawCancel?: () => void;
-  
+
   /** Object representing the current wire drawing state */
   wireDrawing?: {
     isDrawing: boolean;
     fromComponentId: string | null;
     fromPortId: string | null;
   };
-  
+
   /** Array of currently selected component IDs */
   selectedComponentIds?: string[];
-  
+
   /** Array of currently selected wire IDs */
   selectedWireIds?: string[];
-  
+
   /** Whether to show the grid on the canvas */
   showGrid?: boolean;
-  
+
   /** Size of the grid cells in pixels */
   gridSize?: number;
-  
+
   /** Whether to snap components to the grid */
   snapToGrid?: boolean;
-  
+
   /** Callback when a component is dropped onto the canvas */
   onComponentDrop?: (componentType: string, position: Point) => void;
-  
+
   /** Initial zoom level for the canvas (1.0 = 100%) */
   initialZoom?: number;
-  
+
   /** Minimum allowed zoom level */
   minZoom?: number;
-  
+
   /** Maximum allowed zoom level */
   maxZoom?: number;
 }
@@ -1229,29 +1627,29 @@ The viewport transformation is exposed through events, allowing you to:
 ```typescript
 /**
  * useCircuit Hook
- * 
+ *
  * A React hook for managing circuit state and operations. Provides a complete
  * state management solution for circuit components and wires, with support for
  * selection, wire drawing, and undo/redo functionality.
- * 
+ *
  * @returns {[CircuitState, CircuitActions]} A tuple containing the current circuit state and actions to modify it
- * 
+ *
  * @example
  * const [state, actions] = useCircuit();
- * 
+ *
  * // Add a new component
  * const resistorId = actions.addComponent({
  *   type: 'resistor',
  *   position: { x: 100, y: 100 },
  *   props: { resistance: 1000 }
  * });
- * 
+ *
  * // Connect components with a wire
  * actions.addWire(
  *   { componentId: resistorId, portId: 'left' },
  *   { componentId: 'battery-1', portId: 'positive' }
  * );
- * 
+ *
  * // Access current state
  * console.log(state.components, state.wires);
  */
@@ -1263,34 +1661,34 @@ The viewport transformation is exposed through events, allowing you to:
 export interface CircuitActions {
   /** Adds a new component to the circuit and returns its generated ID */
   addComponent: (component: Omit<ComponentInstance, 'id'>) => string;
-  
+
   /** Updates properties of an existing component */
   updateComponent: (id: string, updates: Partial<ComponentInstance>) => void;
-  
+
   /** Removes a component from the circuit */
   removeComponent: (id: string) => void;
-  
+
   /** Adds a new wire between two ports and returns its generated ID */
   addWire: (from: Wire['from'], to: Wire['to'], style?: Wire['style']) => string;
-  
+
   /** Updates properties of an existing wire */
   updateWire: (id: string, updates: Partial<Wire>) => void;
-  
+
   /** Removes a wire from the circuit */
   removeWire: (id: string) => void;
-  
+
   /** Selects a component by ID */
   selectComponent: (id: string) => void;
-  
+
   /** Selects a wire by ID */
   selectWire: (id: string) => void;
-  
+
   /** Deselects all components and wires */
   deselectAll: () => void;
-  
+
   /** Undoes the last action */
   undo: () => void;
-  
+
   /** Redoes a previously undone action */
   redo: () => void;
 }

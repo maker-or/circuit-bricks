@@ -1,15 +1,16 @@
 /**
  * Registry module for component schemas
- * 
+ *
  * This module provides utilities for registering, retrieving, and managing component schemas.
  * The component registry is a central repository of all available component types that can
  * be used in circuits. Each component is defined by a schema that specifies its appearance,
  * ports, and configurable properties.
- * 
+ *
  * @module Registry
  */
 
-import { ComponentSchema } from '../types';
+import { ComponentSchema } from '../schemas/componentSchema';
+import { validateComponentSchema } from '../utils/zodValidation';
 import registerBuiltInComponents from './components';
 
 // Internal registry storage
@@ -17,12 +18,12 @@ const componentRegistry: Record<string, ComponentSchema> = {};
 
 /**
  * Register a component schema in the registry
- * 
+ *
  * This function adds a new component schema to the registry or updates an existing one.
  * Custom components can be registered to extend the library with new circuit elements.
- * 
+ *
  * @param {ComponentSchema} schema - The component schema to register
- * 
+ *
  * @example
  * // Register a custom LED component
  * registerComponent({
@@ -43,21 +44,29 @@ const componentRegistry: Record<string, ComponentSchema> = {};
  * });
  */
 export function registerComponent(schema: ComponentSchema): void {
+  // Validate the schema using ZOD
+  const validationResult = validateComponentSchema(schema);
+
+  if (!validationResult.success) {
+    throw new Error(`Invalid component schema: ${validationResult.error}`);
+  }
+
   if (componentRegistry[schema.id]) {
     console.warn(`Component with ID ${schema.id} already exists in registry. Overwriting.`);
   }
+
   componentRegistry[schema.id] = schema;
 }
 
 /**
  * Get a component schema from the registry by ID
- * 
+ *
  * Retrieves a component's schema definition by its unique identifier.
  * Returns undefined if no component with the specified ID exists.
- * 
+ *
  * @param {string} id - The unique identifier of the component
  * @returns {ComponentSchema | undefined} The component schema or undefined if not found
- * 
+ *
  * @example
  * const resistorSchema = getComponentSchema('resistor');
  * if (resistorSchema) {

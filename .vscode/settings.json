@@ -1,0 +1,20 @@
+{
+  "json.schemaDownload.enable": true,
+  "json.schemas": [
+    {
+      "fileMatch": ["**/package.json"],
+      "url": "https://www.schemastore.org/schemas/json/package.json"
+    },
+    {
+      "fileMatch": ["**/tsconfig.json", "**/tsconfig.*.json"],
+      "url": "https://www.schemastore.org/schemas/json/tsconfig.json"
+    },
+    {
+      "fileMatch": ["**/.eslintrc", "**/.eslintrc.json", "**/.eslintrc.yml", "**/.eslintrc.yaml"],
+      "url": "https://www.schemastore.org/schemas/json/eslintrc.json"
+    }
+  ],
+  "http.proxy": "",
+  "http.proxySupport": "on",
+  "json.validate.enable": true
+}

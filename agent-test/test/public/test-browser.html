@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Circuit Generation</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+        .error { background: #ffe6e6; }
+        .success { background: #e6ffe6; }
+    </style>
+</head>
+<body>
+    <h1>Circuit Generation Test</h1>
+    <button onclick="testCircuitGeneration()">Test Circuit Generation</button>
+    <div id="logs"></div>
+
+    <script>
+        function log(message, type = 'log') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = new Date().toISOString() + ': ' + message;
+            document.getElementById('logs').appendChild(div);
+            console.log(message);
+        }
+
+        async function testCircuitGeneration() {
+            log('Starting circuit generation test...');
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        messages: [
+                            {
+                                role: 'user',
+                                content: 'Create a simple LED circuit diagram'
+                            }
+                        ]
+                    })
+                });
+
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`Error response: ${errorText}`, 'error');
+                    return;
+                }
+
+                log('Reading streaming response...');
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullResponse = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    fullResponse += chunk;
+                }
+                
+                log(`Full response received (${fullResponse.length} chars)`, 'success');
+                log(`Response preview: ${fullResponse.substring(0, 200)}...`);
+                
+                // Check for circuit blocks
+                if (fullResponse.includes('```circuit')) {
+                    log('✅ Circuit block detected in response!', 'success');
+                } else if (fullResponse.includes('circuit') || fullResponse.includes('components')) {
+                    log('⚠️ Circuit-related content found but no circuit block', 'error');
+                } else {
+                    log('❌ No circuit content found in response', 'error');
+                }
+                
+            } catch (error) {
+                log(`Request failed: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

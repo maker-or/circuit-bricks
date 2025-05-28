@@ -1,11 +1,11 @@
 /**
  * WirePath Component
- * 
+ *
  * Renders a wire connection between two component ports.
  */
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Wire, ComponentInstance, Point } from '../types';
+import { Wire, ComponentInstance, Point } from '../schemas/componentSchema';
 import { getPortPosition } from '../utils/getPortPosition';
 
 export interface WirePathProps {
@@ -55,49 +55,49 @@ const WirePath: React.FC<WirePathProps> = ({
   // Setup a MutationObserver to watch for component position changes
   useEffect(() => {
     updatePortPositions();
-    
+
     // Watch for changes in component attributes (like x, y, transform)
     const observer = new MutationObserver((mutations) => {
       let shouldUpdate = false;
-      
+
       mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && 
-            (mutation.attributeName === 'transform' || 
-             mutation.attributeName === 'x' || 
+        if (mutation.type === 'attributes' &&
+            (mutation.attributeName === 'transform' ||
+             mutation.attributeName === 'x' ||
              mutation.attributeName === 'y')) {
           shouldUpdate = true;
         }
       });
-      
+
       if (shouldUpdate) {
         updatePortPositions();
       }
     });
-    
+
     // Find all relevant component SVG elements to observe
     const fromComponent = document.querySelector(`[data-component-id="${wire.from.componentId}"]`);
     const toComponent = document.querySelector(`[data-component-id="${wire.to.componentId}"]`);
-    
+
     if (fromComponent) {
       observer.observe(fromComponent, { attributes: true, attributeFilter: ['transform', 'x', 'y'] });
     }
-    
+
     if (toComponent) {
       observer.observe(toComponent, { attributes: true, attributeFilter: ['transform', 'x', 'y'] });
     }
-    
+
     // Also set up a resize observer to update positions when the canvas resizes
     const resizeObserver = new ResizeObserver(() => {
       updatePortPositions();
     });
-    
+
     if (pathRef.current) {
       const svgElement = pathRef.current.closest('svg');
       if (svgElement) {
         resizeObserver.observe(svgElement);
       }
     }
-    
+
     return () => {
       observer.disconnect();
       resizeObserver.disconnect();
@@ -120,15 +120,15 @@ const WirePath: React.FC<WirePathProps> = ({
     const dx = to.x - from.x;
     const dy = to.y - from.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    
+
     // For very short distances, use a straight line
     if (distance < 20) {
       return `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
     }
-    
+
     // Calculate control points with optimized offset
     const controlPointLength = Math.min(distance / 3, 60); // Reduced for smoother curves
-    
+
     // Determine dominant axis and adjust control points to create natural curves
     if (Math.abs(dx) > Math.abs(dy)) {
       // Horizontal dominant
@@ -149,7 +149,7 @@ const WirePath: React.FC<WirePathProps> = ({
 
   // Wire style based on selected state and custom style
   const wireStyle = {
-    stroke: selected ? '#4f8ef7' : (wire.style?.color || '#333'),
+    stroke: selected ? '#4f8ef7' : (wire.style?.color || 'white'),
     strokeWidth: selected ? 3 : (wire.style?.strokeWidth || 2),
     strokeDasharray: wire.style?.dashArray || 'none',
     fill: 'none',

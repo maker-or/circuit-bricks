@@ -1,11 +1,11 @@
 /**
  * Component registry loader
- * 
+ *
  * This module imports and registers all component schemas
  */
 
 import { registerComponent } from '../index';
-import { ComponentSchema } from '../../types';
+import { ComponentSchema } from '../../schemas/componentSchema';
 
 // Import component schemas
 import resistorSchema from './resistor.json';
@@ -26,19 +26,19 @@ const registerBuiltInComponents = () => {
   registerComponent(capacitorSchema as ComponentSchema);
   registerComponent(groundSchema as ComponentSchema);
   registerComponent(switchSchema as ComponentSchema);
-  
+
   // Sources
   registerComponent(batterySchema as ComponentSchema);
   registerComponent(voltageSourceSchema as ComponentSchema);
-  
+
   // Semiconductors
   registerComponent(diodeSchema as ComponentSchema);
   registerComponent(transistorNpnSchema as ComponentSchema);
   registerComponent(ledSchema as ComponentSchema);
-  
+
   // Advanced components
   registerComponent(icSchema as ComponentSchema);
-  
+
   // Add more component registrations here as they are created
 };
 

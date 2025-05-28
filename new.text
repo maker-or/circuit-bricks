@@ -1,0 +1,334 @@
+1. Core Package Requirements
+1.1 Component Architecture
+1.1.1 Implement a standalone React component library with zero external dependencies beyond React and standard web APIs
+1.1.2 Provide a primary  CircuitCanvas component that accepts JSON circuit definitions directly
+1.1.3 Support both controlled and uncontrolled component modes for flexibility in state management
+1.1.4 Implement component memoization for optimal rendering performance with large circuits
+1.1.5 Support React 18+ features including concurrent rendering and transitions
+1.2 Circuit Data Model
+1.2.1 Define a comprehensive JSON schema for circuit definitions using Zod
+1.2.2 Support all standard electrical components (resistors, capacitors, etc.) with appropriate properties
+1.2.3 Implement a wire connection system with automatic path routing
+1.2.4 Support component rotation, scaling, and custom styling
+1.2.5 Provide circuit validation utilities to verify circuit integrity
+1.3 Rendering System
+1.3.1 Implement SVG-based rendering for all circuit components
+1.3.2 Support high-DPI displays and responsive scaling
+1.3.3 Implement efficient rendering with virtualization for large circuits
+1.3.4 Support custom themes and styling options
+1.3.5 Provide grid system with optional snapping
+
+
+2. Edge Case Handling
+
+2.1 Component Rendering Edge Cases
+2.1.1 Handle missing or invalid component types with appropriate fallbacks
+2.1.2 Support components with zero width or height
+2.1.3 Handle overlapping components with proper z-index management
+2.1.4 Support extremely large or small component dimensions
+2.1.5 Handle custom SVG paths with potential rendering issues
+2.2 Wire Connection Edge Cases
+2.2.1 Handle disconnected wires (wires with missing endpoints)
+2.2.2 Support wire routing around obstacles
+2.2.3 Handle overlapping wires with visual differentiation
+2.2.4 Support multiple wires connecting to the same port
+2.2.5 Handle wire connections between components at extreme distances
+2.3 Interaction Edge Cases
+2.3.1 Handle multi-selection of components and wires
+2.3.2 Support touch interactions on mobile devices
+2.3.3 Handle zoom levels from 10% to 1000%
+2.3.4 Support keyboard navigation and accessibility
+2.3.5 Handle rapid interaction sequences without performance degradation
+2.4 Data Validation Edge Cases
+2.4.1 Provide detailed error messages for schema validation failures
+2.4.2 Handle partial circuit definitions with appropriate defaults
+2.4.3 Support circuit validation with circular references
+2.4.4 Handle extremely large circuit definitions efficiently
+2.4.5 Support incremental validation for performance optimization
+
+
+
+3. AI-Agent-First Design
+
+3.1 Schema Design for AI Generation
+3.1.1 Design component schemas with explicit, descriptive property names
+3.1.2 Provide sensible defaults for all component properties
+3.1.3 Include comprehensive property validation rules with clear error messages
+3.1.4 Support property units and conversions (e.g., ohms, farads)
+3.1.5 Design wire connection schema to be intuitive for AI generation
+3.2 AI-Friendly API Design
+3.2.1 Implement consistent naming conventions across all APIs
+3.2.2 Provide high-level circuit generation utilities
+3.2.3 Support partial circuit updates for incremental generation
+3.2.4 Include circuit templates for common patterns (voltage dividers, filters, etc.)
+3.2.5 Implement circuit validation with actionable feedback for AI correction
+3.3 AI Documentation Support
+3.3.1 Generate comprehensive JSON schema documentation
+3.3.2 Provide example circuits for common scenarios
+3.3.3 Include detailed property descriptions for all components
+3.3.4 Document common circuit patterns and best practices
+3.3.5 Provide troubleshooting guides for common AI generation issues
+
+
+4. Zod Schema Validation System
+
+4.1 Core Schema Requirements
+4.1.1 Implement comprehensive Zod schemas for all circuit elements
+4.1.2 Export all schemas for external validation use
+4.1.3 Support schema composition for complex circuit validation
+4.1.4 Implement custom Zod refinements for circuit-specific validation
+4.1.5 Provide schema utilities for transforming and normalizing circuit data
+4.2 Component Schema Requirements
+4.2.1 Define schemas for all standard electrical components
+4.2.2 Support component property validation with appropriate constraints
+4.2.3 Implement port definition schemas with position validation
+4.2.4 Support custom component schema registration
+4.2.5 Provide schema versioning for backward compatibility
+4.3 Wire Schema Requirements
+4.3.1 Define schemas for wire connections with endpoint validation
+4.3.2 Support wire styling properties with appropriate constraints
+4.3.3 Implement path routing validation
+4.3.4 Support custom wire types with specific validation rules
+4.3.5 Provide schema utilities for wire path optimization
+4.4 Circuit Validation Requirements
+4.4.1 Implement circuit-level validation for electrical correctness
+4.4.2 Support validation of component interconnections
+4.4.3 Implement validation for circuit completeness (no floating connections)
+4.4.4 Support validation of circuit properties (voltage, current, etc.)
+4.4.5 Provide validation utilities for specific circuit types (digital, analog, etc.)
+
+
+
+5. TypeScript Type Definitions
+
+5.1 Core Type Definitions
+5.1.1 Provide comprehensive TypeScript interfaces for all circuit elements
+5.1.2 Export Zod schema types for type inference
+5.1.3 Implement utility types for common operations
+5.1.4 Support generic types for extensibility
+5.1.5 Include JSDoc comments for all type definitions
+5.2 Component Type Definitions
+5.2.1 Define interfaces for all component types with appropriate properties
+5.2.2 Support discriminated unions for component type differentiation
+5.2.3 Implement port type definitions with position types
+5.2.4 Support property type definitions with appropriate constraints
+5.2.5 Provide type utilities for component transformations
+5.3 Event Type Definitions
+5.3.1 Define interfaces for all event handlers
+5.3.2 Support event data types with appropriate properties
+5.3.3 Implement callback type definitions
+5.3.4 Support generic event types for extensibility
+5.3.5 Provide type utilities for event handling
+5.4 API Type Definitions
+5.4.1 Define interfaces for all public API methods
+5.4.2 Support prop types for all React components
+5.4.3 Implement hook return type definitions
+5.4.4 Support utility function type definitions
+5.4.5 Provide type utilities for API usage
+
+
+6. Browser Compatibility and SSR Support
+
+
+6.1 Browser Compatibility
+6.1.1 Support all modern browsers (Chrome, Firefox, Safari, Edge)
+6.1.2 Implement fallbacks for older browsers where appropriate
+6.1.3 Support mobile browsers with touch interactions
+6.1.4 Implement responsive design for various screen sizes
+6.1.5 Support high-DPI displays with appropriate scaling
+6.2 Server-Side Rendering
+6.2.1 Implement SSR-safe component initialization
+6.2.2 Support Next.js and other SSR frameworks
+6.2.3 Implement hydration-safe DOM operations
+6.2.4 Support dynamic imports for code splitting
+6.2.5 Provide SSR-specific documentation and examples
+6.3 Performance Optimization
+6.3.1 Implement code splitting for optimal bundle size
+6.3.2 Support tree shaking for unused components
+6.3.3 Implement memoization for expensive operations
+6.3.4 Support virtualization for large circuits
+6.3.5 Provide performance monitoring utilities
+6.4 Accessibility Support
+6.4.1 Implement ARIA attributes for all interactive elements
+6.4.2 Support keyboard navigation
+6.4.3 Implement screen reader compatibility
+6.4.4 Support high-contrast mode
+6.4.5 Provide accessibility documentation and examples
+
+
+7. Component API Specification
+
+
+7.1 CircuitCanvas Component
+7.1.1 Accept circuit definition as direct JSON input
+7.1.2 Support controlled and uncontrolled modes
+7.1.3 Implement comprehensive event handlers for all interactions
+7.1.4 Support custom styling and theming
+7.1.5 Provide ref forwarding for DOM access
+7.2 Component Registry API
+7.2.1 Support component registration and retrieval
+7.2.2 Implement category-based component organization
+7.2.3 Support custom component registration
+7.2.4 Provide utilities for component discovery
+7.2.5 Implement versioning for backward compatibility
+7.3 Circuit State Management API
+7.3.1 Provide hooks for circuit state management
+7.3.2 Support undo/redo functionality
+7.3.3 Implement selection management
+7.3.4 Support circuit modification operations
+7.3.5 Provide utilities for state persistence
+7.4 Utility API
+7.4.1 Implement circuit validation utilities
+7.4.2 Support circuit transformation operations
+7.4.3 Provide DOM position utilities
+7.4.4 Implement circuit analysis utilities
+7.4.5 Support circuit generation utilities
+
+
+
+8. Export Functionality
+
+
+8.1 SVG Export
+8.1.1 Support high-quality SVG export of the entire circuit
+8.1.2 Implement styling preservation in exports
+8.1.3 Support custom dimensions and scaling
+8.1.4 Implement background and grid options
+8.1.5 Provide utilities for SVG optimization
+8.2 PNG Export
+8.2.1 Support PNG export with configurable resolution
+8.2.2 Implement transparent background option
+8.2.3 Support custom dimensions and scaling
+8.2.4 Implement browser-based rendering without server dependencies
+8.2.5 Provide utilities for image optimization
+8.3 JSON Export
+8.3.1 Support export of the complete circuit definition
+8.3.2 Implement formatting options for readability
+8.3.3 Support selective export of circuit elements
+8.3.4 Implement versioning for backward compatibility
+8.3.5 Provide utilities for JSON transformation
+8.4 Export API
+8.4.1 Provide programmatic export functions
+8.4.2 Support UI components for export operations
+8.4.3 Implement export progress and error handling
+8.4.4 Support batch export operations
+8.4.5 Provide documentation and examples for all export functions
+
+
+
+
+
+9. Event Handling and Interaction
+
+9.1 Component Interaction
+9.1.1 Support selection of components (single and multiple)
+9.1.2 Implement dragging and positioning
+9.1.3 Support rotation and scaling
+9.1.4 Implement property editing
+9.1.5 Support context menu operations
+9.2 Wire Interaction
+9.2.1 Support wire creation and deletion
+9.2.2 Implement wire path editing
+9.2.3 Support wire selection
+9.2.4 Implement wire styling operations
+9.2.5 Support automatic wire routing
+9.3 Canvas Interaction
+9.3.1 Implement panning and zooming
+9.3.2 Support grid snapping
+9.3.3 Implement selection rectangle
+9.3.4 Support keyboard shortcuts
+9.3.5 Implement touch gestures for mobile
+9.4 Event System
+9.4.1 Provide comprehensive event handlers for all interactions
+9.4.2 Support custom event handling
+9.4.3 Implement event bubbling and capturing
+9.4.4 Support event prevention and stopPropagation
+9.4.5 Provide utilities for event debugging
+
+
+
+
+10. Documentation Requirements
+
+
+
+10.1 API Documentation
+10.1.1 Provide comprehensive documentation for all public APIs
+10.1.2 Implement TypeScript-based API documentation
+10.1.3 Support interactive examples
+10.1.4 Implement versioned documentation
+10.1.5 Provide search functionality
+10.2 AI Agent Documentation
+10.2.1 Create dedicated documentation for AI agent integration
+10.2.2 Provide examples of AI-generated circuits
+10.2.3 Implement schema documentation with examples
+10.2.4 Support troubleshooting guides for common AI issues
+10.2.5 Provide best practices for AI circuit generation
+10.3 Component Documentation
+10.3.1 Document all built-in components with properties and ports
+10.3.2 Provide visual examples of each component
+10.3.3 Implement interactive component explorer
+10.3.4 Support custom component documentation
+10.3.5 Provide circuit examples using each component
+10.4 Tutorial Documentation
+10.4.1 Create step-by-step tutorials for common tasks
+10.4.2 Implement interactive tutorials with code examples
+10.4.3 Support video tutorials for complex operations
+10.4.4 Provide beginner-friendly introduction
+10.4.5 Implement advanced usage documentation
+
+
+
+11. Implementation Priorities
+
+
+11.1 Phase 1: Core Functionality
+11.1.1 Implement basic component rendering
+11.1.2 Support wire connections
+11.1.3 Implement Zod schema validation
+11.1.4 Support basic interactions
+11.1.5 Provide TypeScript definitions
+11.2 Phase 2: Enhanced Functionality
+11.2.1 Implement advanced component features
+11.2.2 Support complex wire routing
+11.2.3 Implement export functionality
+11.2.4 Support SSR and browser compatibility
+11.2.5 Provide comprehensive documentation
+11.3 Phase 3: AI Integration
+11.3.1 Enhance AI-friendly schema design
+11.3.2 Implement circuit templates
+11.3.3 Support circuit validation with AI feedback
+11.3.4 Provide AI-specific documentation
+11.3.5 Implement example AI integrations
+11.4 Phase 4: Advanced Features
+11.4.1 Implement circuit simulation capabilities
+11.4.2 Support interactive component behavior
+11.4.3 Implement advanced analysis tools
+11.4.4 Support collaborative editing
+11.4.5 Provide enterprise integration features
+
+
+
+12. Compatibility Requirements
+
+
+12.1 Framework Compatibility
+12.1.1 Support React 16.8+ (Hooks API)
+12.1.2 Implement compatibility with Next.js
+12.1.3 Support Gatsby and other React frameworks
+12.1.4 Provide compatibility with React Native (where applicable)
+12.1.5 Support server components in React 18+
+12.2 Module System Compatibility
+12.2.1 Support ESM and CommonJS module systems
+12.2.2 Implement tree-shakable exports
+12.2.3 Support TypeScript module resolution
+12.2.4 Provide compatibility with bundlers (webpack, Rollup, etc.)
+12.2.5 Support dynamic imports
+12.3 Browser Compatibility
+12.3.1 Support evergreen browsers (latest 2 versions)
+12.3.2 Implement fallbacks for IE11 (if required)
+12.3.3 Support mobile browsers (iOS Safari, Android Chrome)
+12.3.4 Implement responsive design for all screen sizes
+12.3.5 Support high-DPI displays
+12.4 Server Compatibility
+12.4.1 Support Node.js environments
