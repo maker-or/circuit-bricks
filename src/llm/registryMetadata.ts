@@ -4,7 +4,7 @@
  * This module provides metadata about the component registry for LLM consumption.
  */
 
-import { getAllComponents } from '../registry';
+import { getAllServerComponents } from '../registry/server';
 import { RegistryMetadata } from './types';
 
 /**
@@ -13,10 +13,10 @@ import { RegistryMetadata } from './types';
  * @returns Registry metadata including counts, categories, and organization
  */
 export function getRegistryMetadata(): RegistryMetadata {
-  const allComponents = getAllComponents();
+  const allComponents = getAllServerComponents();
   const categorySet = new Set(allComponents.map(schema => schema.category));
   const categories = Array.from(categorySet).sort();
-  
+
   const componentsByCategory: Record<string, number> = {};
   for (const category of categories) {
     componentsByCategory[category] = allComponents.filter(schema => schema.category === category).length;
@@ -37,7 +37,7 @@ export function getRegistryMetadata(): RegistryMetadata {
  */
 export function getRegistrySummary(): string {
   const metadata = getRegistryMetadata();
-  const allComponents = getAllComponents();
+  const allComponents = getAllServerComponents();
 
   let summary = `# Circuit-Bricks Component Registry Summary
 
@@ -83,9 +83,9 @@ Last updated: ${metadata.lastUpdated}
  * @returns Detailed component summary or null if not found
  */
 export function getComponentDetailedSummary(componentId: string): string | null {
-  const allComponents = getAllComponents();
+  const allComponents = getAllServerComponents();
   const component = allComponents.find(schema => schema.id === componentId);
-  
+
   if (!component) {
     return null;
   }
