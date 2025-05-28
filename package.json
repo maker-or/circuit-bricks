@@ -1,6 +1,6 @@
 {
-  "name": "@sphere-labs/circuit-bricks",
-  "version": "0.1.2",
+  "name": "circuit-bricks",
+  "version": "0.1.3",
   "description": "A modular, Lego-style SVG circuit component system for React (ALPHA - Not for production use)",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
