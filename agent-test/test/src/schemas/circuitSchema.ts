@@ -28,19 +28,23 @@ export const connectionPointSchema = z.object({
   portId: z.string(),
 });
 
-// Wire style schema
+// Wire style schema - matches circuit-bricks exactly
 export const wireStyleSchema = z.object({
   color: z.string().optional(),
   strokeWidth: z.number().optional(),
   dashArray: z.string().optional(),
 }).optional();
 
-// Wire schema - matches circuit-bricks Wire interface
+// Wire schema - matches circuit-bricks Wire interface exactly
 export const wireSchema = z.object({
   id: z.string(),
   from: connectionPointSchema,
   to: connectionPointSchema,
-  style: wireStyleSchema,
+  style: z.object({
+    color: z.string().optional(),
+    strokeWidth: z.number().optional(),
+    dashArray: z.string().optional(),
+  }).optional(),
 });
 
 // Circuit schema - simplified version for markdown rendering
@@ -63,13 +67,30 @@ export type Circuit = z.infer<typeof circuitSchema>;
 
 // Validation function with detailed error reporting
 export function validateCircuit(data: unknown): { success: true; data: Circuit } | { success: false; error: string } {
+  console.log('🔍 validateCircuit called with data:', {
+    type: typeof data,
+    isObject: typeof data === 'object' && data !== null,
+    keys: typeof data === 'object' && data !== null ? Object.keys(data as object) : 'N/A',
+    preview: JSON.stringify(data).substring(0, 200) + '...'
+  });
+
   try {
     const result = circuitSchema.parse(data);
+    console.log('✅ Circuit validation successful:', result);
     return { success: true, data: result };
   } catch (error) {
+    console.error('❌ Circuit validation failed:', error);
+
     if (error instanceof z.ZodError) {
+      console.log('📋 Detailed Zod errors:', error.errors);
+
       const errorMessages = error.errors.map(err => {
         const path = err.path.length > 0 ? err.path.join('.') : 'root';
+        console.log(`  - Error at ${path}: ${err.message}`, {
+          code: err.code,
+          path: err.path,
+          errorData: err
+        });
         return `${path}: ${err.message}`;
       }).join('; ');
 
@@ -83,8 +104,12 @@ export function validateCircuit(data: unknown): { success: true; data: Circuit }
         helpfulHint = ' (Hint: Circuit needs a wires array, even if empty: [])';
       }
 
-      return { success: false, error: `${errorMessages}${helpfulHint}` };
+      const fullError = `${errorMessages}${helpfulHint}`;
+      console.error('🚨 Final validation error:', fullError);
+      return { success: false, error: fullError };
     }
+
+    console.error('🚨 Unknown validation error:', error);
     return { success: false, error: 'Unknown validation error' };
   }
 }

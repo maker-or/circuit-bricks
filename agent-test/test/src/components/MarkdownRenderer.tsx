@@ -3,7 +3,7 @@
 import React, { Component, ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { validateCircuit, type Circuit } from '../schemas/circuitSchema';
-import { CircuitCanvas as CircuitBricksCanvas } from '@sphere-labs/circuit-bricks';
+import { CircuitCanvas as CircuitBricksCanvas } from 'circuit-bricks';
 
 // Simple Error Boundary for inline circuit rendering
 class InlineCircuitErrorBoundary extends Component<
@@ -140,12 +140,26 @@ const CodeComponent = ({
     });
 
     try {
+      // Enhanced debugging for circuit parsing
+      console.log('🔍 Circuit parsing debug:', {
+        jsonLength: jsonString.length,
+        startsWithBrace: jsonString.startsWith('{'),
+        endsWithBrace: jsonString.endsWith('}'),
+        appearsComplete,
+        bracesMatch,
+        openBraces,
+        closeBraces,
+        firstChars: jsonString.substring(0, 50),
+        lastChars: jsonString.substring(jsonString.length - 50)
+      });
+
       // Only try to parse if it looks like JSON (starts with { or [) AND appears complete
       if (!appearsComplete || !bracesMatch) {
         console.log('⏳ Circuit block appears incomplete, skipping parse:', {
           appearsComplete,
           bracesMatch,
-          jsonLength: jsonString.length
+          jsonLength: jsonString.length,
+          reason: !appearsComplete ? 'not complete' : 'braces mismatch'
         });
         // Fall through to regular code block rendering
         return (
@@ -159,6 +173,10 @@ const CodeComponent = ({
       }
 
       if (!jsonString.startsWith('{') && !jsonString.startsWith('[')) {
+        console.log('⏳ Circuit block does not start with { or [, skipping parse:', {
+          firstChar: jsonString.charAt(0),
+          firstFewChars: jsonString.substring(0, 10)
+        });
         // Fall through to regular code block rendering
         return (
           <code
@@ -170,9 +188,20 @@ const CodeComponent = ({
         );
       }
 
+      console.log('🔄 Attempting to parse JSON...');
       const parsedData = JSON.parse(jsonString);
+      console.log('✅ JSON parsing successful:', {
+        type: typeof parsedData,
+        isObject: typeof parsedData === 'object',
+        keys: typeof parsedData === 'object' ? Object.keys(parsedData) : 'N/A',
+        hasComponents: parsedData?.components !== undefined,
+        hasWires: parsedData?.wires !== undefined,
+        componentsLength: Array.isArray(parsedData?.components) ? parsedData.components.length : 'N/A',
+        wiresLength: Array.isArray(parsedData?.wires) ? parsedData.wires.length : 'N/A'
+      });
 
       // Validate the circuit data using Zod schema
+      console.log('🔄 Attempting circuit validation...');
       const validation = validateCircuit(parsedData);
 
       if (validation.success) {
@@ -258,7 +287,13 @@ const CodeComponent = ({
         );
       }
     } catch (error) {
-      console.error('Failed to parse circuit JSON:', error);
+      console.error('❌ Failed to parse circuit JSON:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        errorType: typeof error,
+        jsonLength: jsonString.length,
+        jsonPreview: jsonString.substring(0, 200) + '...',
+        jsonSuffix: jsonString.substring(jsonString.length - 100)
+      });
       // Fall through to regular code block rendering
     }
   }
@@ -275,6 +310,14 @@ const CodeComponent = ({
 };
 
 export default function MarkdownRenderer({ content, onCircuitGenerated }: MarkdownRendererProps) {
+  // Debug logging for content analysis
+  console.log('📄 MarkdownRenderer received content:', {
+    length: content.length,
+    hasCircuitBlock: content.includes('```circuit'),
+    hasJsonBlock: content.includes('```json'),
+    preview: content.substring(0, 200) + '...'
+  });
+
   return (
     <div className="prose prose-invert max-w-none">
       <ReactMarkdown

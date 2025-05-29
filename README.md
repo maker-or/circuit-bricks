@@ -3,6 +3,18 @@
 A React + TypeScript library for creating SVG-based electrical circuit diagrams with a Lego-style component system.
 
 > **⚠️ DEVELOPMENT STATUS:** This library is currently in early development stage and not recommended for production use. APIs may change, features might be incomplete, and there could be significant bugs. Use at your own risk.
+## 🤖 Perfect for LLM Integration
+
+Circuit-Bricks is designed from the ground up to work seamlessly with Large Language Models. Create intelligent circuit design applications where users can describe circuits in natural language and see them rendered instantly.
+
+**Quick Start:** Jump to [Quick Start for LLM Integration](#quick-start-for-llm-integration) to get up and running in minutes.
+
+**Key Benefits for LLM Integration:**
+- 📋 **Schema-Driven**: Comprehensive component schemas for LLM context
+- 🎨 **Instant Visualization**: Real-time circuit rendering with CircuitCanvas
+- 🔧 **Validation Built-in**: Automatic circuit validation and error handling
+- 🎯 **Educational Focus**: Perfect for learning applications and circuit explanation
+- 🌙 **Dark Theme Ready**: Optimized for modern dark UI themes
 
 
 
@@ -34,6 +46,85 @@ yarn add circuit-bricks
 # pnpm
 pnpm add circuit-bricks
 ```
+
+## Quick Start for LLM Integration
+
+If you're here to integrate Circuit-Bricks with LLMs, here's the fastest way to get started:
+
+### 1. Install Dependencies
+
+```bash
+npm install circuit-bricks ai @openrouter/ai-sdk-provider react-markdown
+```
+
+### 2. Create API Route
+
+```typescript
+// app/api/chat/route.ts
+import { streamText } from 'ai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { getAllComponentSchemas } from 'circuit-bricks/llm';
+
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+  const schemas = getAllComponentSchemas();
+
+  const result = await streamText({
+    model: openrouter('mistralai/mistral-7b-instruct:free'),
+    messages,
+    system: `You are an electrical engineering expert. Use these schemas: ${JSON.stringify(schemas)}.
+    Wrap circuit JSON in "circuit" tags.`,
+  });
+
+  return result.toDataStreamResponse();
+}
+```
+
+### 3. Create Frontend Component
+
+```tsx
+// components/CircuitChat.tsx
+import { useChat } from 'ai/react';
+import { CircuitCanvas } from 'circuit-bricks';
+
+export default function CircuitChat() {
+  const [circuit, setCircuit] = useState(null);
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: '/api/chat',
+    onFinish: (message) => {
+      const match = message.content.match(/circuit\s*\n([\s\S]*?)\ncircuit/);
+      if (match) setCircuit(JSON.parse(match[1]));
+    }
+  });
+
+  return (
+    <div className="flex h-screen">
+      <div className="w-2/5 p-4">
+        {/* Chat interface */}
+        <form onSubmit={handleSubmit}>
+          <input value={input} onChange={handleInputChange}
+                 placeholder="Create an LED circuit..." />
+        </form>
+      </div>
+      <div className="w-3/5">
+        {circuit && (
+          <CircuitCanvas
+            components={circuit.components}
+            wires={circuit.wires}
+            width="100%" height="100%"
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+That's it! You now have a working LLM-powered circuit designer. See the [LLM Integration API](#llm-integration-api) section for more details.
 
 ## Development Status
 
@@ -512,41 +603,175 @@ Each example is fully interactive and can be used as a starting point for your o
 
 ## LLM Integration API
 
-Circuit-Bricks provides a comprehensive API specifically designed for Large Language Models (LLMs) to discover components and generate circuits programmatically.
+Circuit-Bricks provides a comprehensive API specifically designed for Large Language Models (LLMs) to discover components and generate circuits programmatically. This section shows you how to integrate Circuit-Bricks with LLMs to create intelligent circuit design applications.
 
 ### Quick Start for LLMs
 
 ```typescript
-import { LLM } from 'circuit-bricks';
+import { getAllComponentSchemas } from 'circuit-bricks/llm';
 
-// Discover available components
-const components = LLM.listAvailableComponents();
-console.log(`Found ${components.length} components`);
+// Get all component schemas for LLM context
+const schemas = getAllComponentSchemas();
 
-// Search for specific components
-const resistors = LLM.searchComponents('resistor');
-
-// Get detailed component information
-const ledDetails = LLM.getComponentDetails('led');
-console.log('LED ports:', ledDetails?.ports);
-
-// Generate a circuit from description
-const circuit = LLM.generateCircuitTemplate('LED circuit with current limiting resistor');
-
-// Validate the circuit
-const validation = LLM.validateCircuitDesign(circuit);
-if (validation.isValid) {
-  console.log('Circuit is valid!');
-} else {
-  console.log('Issues:', validation.errors);
-}
-
-// Get human-readable descriptions
-const description = LLM.describeCircuit(circuit);
-console.log(description.summary);
+// Use schemas to provide context to your LLM
+const prompt = `
+Available component schemas: ${JSON.stringify(schemas)}
+Create a circuit for: LED with current limiting resistor
+`;
 ```
 
-### Key LLM Functions
+### Complete Integration Example
+
+Here's a complete example showing how to integrate Circuit-Bricks with an LLM API and render the results:
+
+#### 1. Backend API Route (Next.js)
+
+```typescript
+// pages/api/chat/route.ts or app/api/chat/route.ts
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { streamText } from 'ai';
+import { getAllComponentSchemas } from 'circuit-bricks/llm';
+
+const openrouter = createOpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+  const userQuestion = messages[messages.length - 1]?.content;
+
+  // Get component schemas for LLM context
+  const schemas = getAllComponentSchemas();
+
+  const systemPrompt = `
+You are an electrical engineering expert. Use these component schemas: ${JSON.stringify(schemas)}
+
+Create circuit diagrams based on user questions. Return your response with:
+1. Educational explanation of the circuit
+2. Circuit schema wrapped in "circuit" tags
+
+Example circuit format:
+circuit
+{
+  "components": [
+    {
+      "id": "battery_1",
+      "type": "battery",
+      "position": { "x": 100, "y": 200 },
+      "props": { "voltage": 9 }
+    }
+  ],
+  "wires": [
+    {
+      "id": "wire_1",
+      "from": { "componentId": "battery_1", "portId": "positive" },
+      "to": { "componentId": "resistor_1", "portId": "left" }
+    }
+  ]
+}
+circuit
+  `;
+
+  const result = await streamText({
+    model: openrouter('mistralai/mistral-7b-instruct:free'),
+    messages,
+    system: systemPrompt,
+    temperature: 0.3,
+  });
+
+  return result.toDataStreamResponse();
+}
+```
+
+#### 2. Frontend Integration
+
+```tsx
+// components/CircuitChat.tsx
+import React, { useState } from 'react';
+import { useChat } from 'ai/react';
+import { CircuitCanvas } from 'circuit-bricks';
+import ReactMarkdown from 'react-markdown';
+
+const CircuitChat = () => {
+  const [circuit, setCircuit] = useState(null);
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: '/api/chat',
+    onFinish: (message) => {
+      // Extract circuit from LLM response
+      const circuitMatch = message.content.match(/circuit\s*\n([\s\S]*?)\ncircuit/);
+      if (circuitMatch) {
+        try {
+          const circuitData = JSON.parse(circuitMatch[1]);
+          setCircuit(circuitData);
+        } catch (error) {
+          console.error('Failed to parse circuit:', error);
+        }
+      }
+    }
+  });
+
+  return (
+    <div className="flex h-screen bg-gray-900 text-white">
+      {/* Chat Panel */}
+      <div className="w-2/5 flex flex-col border-r border-gray-700">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.map((message) => (
+            <div key={message.id} className={`${
+              message.role === 'user' ? 'text-blue-300' : 'text-gray-100'
+            }`}>
+              <div className="font-semibold mb-1">
+                {message.role === 'user' ? 'You' : 'Assistant'}
+              </div>
+              <ReactMarkdown className="prose prose-invert">
+                {message.content.replace(/circuit\s*\n[\s\S]*?\ncircuit/g, '[Circuit Generated]')}
+              </ReactMarkdown>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 border-t border-gray-700">
+          <input
+            value={input}
+            onChange={handleInputChange}
+            placeholder="Ask about circuits... (e.g., 'Create an LED circuit')"
+            className="w-full p-2 bg-gray-800 border border-gray-600 rounded"
+          />
+        </form>
+      </div>
+
+      {/* Circuit Visualization Panel */}
+      <div className="w-3/5 flex flex-col">
+        <div className="p-4 border-b border-gray-700">
+          <h2 className="text-lg font-semibold">Circuit Diagram</h2>
+        </div>
+        <div className="flex-1 bg-gray-800">
+          {circuit ? (
+            <CircuitCanvas
+              components={circuit.components || []}
+              wires={circuit.wires || []}
+              width="100%"
+              height="100%"
+              showGrid={true}
+              gridSize={20}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-400">
+              Ask a question to generate a circuit diagram
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CircuitChat;
+```
+
+### Key LLM Integration Functions
+
+**Schema Access:**
+- `getAllComponentSchemas()` - Get all component schemas for LLM context
 
 **Component Discovery:**
 - `listAvailableComponents()` - Get all available components
@@ -557,7 +782,212 @@ console.log(description.summary);
 - `validateCircuitDesign(circuit)` - Validate circuits with clear error messages
 - `validateComponentInstance(component)` - Validate individual components
 
+### Best Practices for LLM Integration
+
+1. **Provide Schema Context**: Always include component schemas in your LLM prompts
+2. **Use Structured Output**: Request circuits in JSON format for easy parsing
+3. **Handle Errors Gracefully**: Implement error boundaries for circuit rendering
+4. **Validate Generated Circuits**: Use validation functions before rendering
+5. **Educational Focus**: Combine circuit generation with educational explanations
+
+### Environment Setup
+
+```bash
+# Install required dependencies
+npm install ai @openrouter/ai-sdk-provider react-markdown
+
+# Set up environment variables
+OPENROUTER_API_KEY=your_api_key_here
+```
+
 For comprehensive LLM integration documentation, see the [AI Agent Guide](./Docs/AI-AGENT-GUIDE.md).
+
+## CircuitCanvas for LLM-Generated Circuits
+
+The `CircuitCanvas` component is perfect for rendering circuits generated by LLMs. Here are specific patterns and tips for LLM integration:
+
+### Dynamic Circuit Rendering
+
+```tsx
+import React, { useState, useEffect } from 'react';
+import { CircuitCanvas } from 'circuit-bricks';
+
+const LLMCircuitRenderer = ({ circuitData, error }) => {
+  const [components, setComponents] = useState([]);
+  const [wires, setWires] = useState([]);
+  const [renderError, setRenderError] = useState(null);
+
+  useEffect(() => {
+    if (circuitData) {
+      try {
+        // Validate and set circuit data
+        setComponents(circuitData.components || []);
+        setWires(circuitData.wires || []);
+        setRenderError(null);
+      } catch (err) {
+        setRenderError('Failed to parse circuit data');
+        console.error('Circuit parsing error:', err);
+      }
+    }
+  }, [circuitData]);
+
+  if (error || renderError) {
+    return (
+      <div className="flex items-center justify-center h-full bg-red-900/20 border border-red-800">
+        <div className="text-center">
+          <div className="text-red-400 mb-2">⚠️</div>
+          <p className="text-red-300 font-medium">Circuit Error</p>
+          <p className="text-red-400 text-sm mt-1">{error || renderError}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-full bg-gray-900">
+      <CircuitCanvas
+        components={components}
+        wires={wires}
+        width="100%"
+        height="100%"
+        showGrid={true}
+        gridSize={20}
+        onComponentClick={(id) => console.log('Component clicked:', id)}
+        onWireClick={(id) => console.log('Wire clicked:', id)}
+      />
+    </div>
+  );
+};
+```
+
+### Split-Screen Layout (Recommended)
+
+```tsx
+const CircuitChatApp = () => {
+  return (
+    <div className="flex h-screen bg-gray-900">
+      {/* Chat Panel - 40% */}
+      <div className="w-2/5 border-r border-gray-700">
+        <ChatInterface />
+      </div>
+
+      {/* Circuit Panel - 60% */}
+      <div className="w-3/5">
+        <CircuitCanvas
+          components={generatedComponents}
+          wires={generatedWires}
+          width="100%"
+          height="100%"
+          showGrid={true}
+        />
+      </div>
+    </div>
+  );
+};
+```
+
+### Loading States and Error Handling
+
+```tsx
+const CircuitVisualization = ({ isGenerating, circuit, error }) => {
+  if (isGenerating) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+          <p className="text-gray-400">Generating circuit...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full bg-red-900/20">
+        <div className="text-center">
+          <p className="text-red-300">Failed to generate circuit</p>
+          <p className="text-red-400 text-sm mt-1">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!circuit) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-400">
+        Ask a question to generate a circuit diagram
+      </div>
+    );
+  }
+
+  return (
+    <CircuitCanvas
+      components={circuit.components}
+      wires={circuit.wires}
+      width="100%"
+      height="100%"
+      showGrid={true}
+    />
+  );
+};
+```
+
+### Circuit Validation Before Rendering
+
+```tsx
+import { validateCircuitDesign } from 'circuit-bricks/llm';
+
+const ValidatedCircuitRenderer = ({ circuitData }) => {
+  const [validationResult, setValidationResult] = useState(null);
+
+  useEffect(() => {
+    if (circuitData) {
+      const validation = validateCircuitDesign(circuitData);
+      setValidationResult(validation);
+    }
+  }, [circuitData]);
+
+  if (validationResult && !validationResult.isValid) {
+    return (
+      <div className="p-4 bg-yellow-900/20 border border-yellow-800">
+        <h3 className="text-yellow-300 font-medium mb-2">Circuit Validation Issues</h3>
+        <ul className="text-yellow-400 text-sm space-y-1">
+          {validationResult.errors.map((error, index) => (
+            <li key={index}>• {error}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  return (
+    <CircuitCanvas
+      components={circuitData.components}
+      wires={circuitData.wires}
+      width="100%"
+      height="100%"
+      showGrid={true}
+    />
+  );
+};
+```
+
+### Styling Tips for Dark Themes
+
+Circuit-Bricks works great with dark themes. The default wire color is white, which provides good contrast:
+
+```css
+/* Custom styling for dark theme integration */
+.circuit-container {
+  background-color: #0c0c0c; /* Dark background */
+  border: 1px solid #374151; /* Gray border */
+}
+
+/* Grid styling for dark themes */
+.circuit-canvas svg {
+  background-color: transparent;
+}
+```
 
 ## Documentation
 

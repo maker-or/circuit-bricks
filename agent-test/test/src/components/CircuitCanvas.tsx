@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState, useMemo, Component, ReactNode } from 'react';
 import dynamic from 'next/dynamic';
-import { ComponentInstance, Wire } from '@sphere-labs/circuit-bricks';
+import { ComponentInstance, Wire } from 'circuit-bricks';
 import { type Circuit } from '@/schemas/circuitSchema';
 
 // Dynamic import to avoid SSR issues with circuit-bricks
 const DynamicCircuitCanvas = dynamic(() =>
-  import('@sphere-labs/circuit-bricks').then(mod => ({ default: mod.CircuitCanvas })), {
+  import('circuit-bricks').then(mod => ({ default: mod.CircuitCanvas })), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-full bg-gray-900">
